@@ -1,0 +1,3 @@
+#!/bin/bash
+# arg: one.one.Server e.g.
+mvn exec:java -Dexec.mainClass="sdc.spdz.circuits.$1"
