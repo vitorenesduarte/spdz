@@ -1,5 +1,6 @@
-package sdc.spdz.circuits.sum;
+package sdc.spdz.circuits;
 
+import sdc.spdz.circuits.Group;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -11,7 +12,7 @@ import sdc.spdz.circuits.operation.InvalidParamNumberException;
  *
  * @author Vitor Enes (vitorenesduarte ~at~ gmail ~dot~ com)
  */
-public class Main {
+public class MainTwo {
 
    public static void main(String[] args) {
       try {
@@ -44,7 +45,7 @@ public class Main {
          System.out.println("RESULT : " + resultSum);
 
       } catch (InvalidParamNumberException ex) {
-         Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+         Logger.getLogger(MainTwo.class.getName()).log(Level.SEVERE, null, ex);
       }
 
    }
@@ -67,7 +68,7 @@ public class Main {
             System.out.println(circuit.getResult());
 
          } catch (InvalidParamNumberException ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MainTwo.class.getName()).log(Level.SEVERE, null, ex);
          }
       }
    }

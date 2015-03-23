@@ -1,4 +1,4 @@
-package sdc.spdz.circuits.sum;
+package sdc.spdz.circuits;
 
 import java.util.Random;
 
@@ -28,7 +28,7 @@ public class Group {
       }
 
       shares[NSHARES - 1] %= P;
-      if (shares[NSHARES - 1] < P) {
+      if (shares[NSHARES - 1] < 0) {
          shares[NSHARES - 1] += P;
       }
 
