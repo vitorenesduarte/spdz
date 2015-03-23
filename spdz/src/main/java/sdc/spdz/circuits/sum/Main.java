@@ -32,7 +32,7 @@ public class Main {
 
          int[][] inputShares = new int[NINPUTS][NINPUTS];
          for (int i = 0; i < NINPUTS; i++) {
-            inputShares[i] = group.shares(inputs[i], NINPUTS);
+            inputShares[i] = group.createShares(inputs[i], NINPUTS);
          }
 
          int resultSum = 0;

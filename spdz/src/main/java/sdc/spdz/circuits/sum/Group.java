@@ -19,18 +19,19 @@ public class Group {
       return r.nextInt(P);
    }
 
-   public int[] shares(int x, int NSHARES) {
+   public int[] createShares(int x, int NSHARES) {
       int[] shares = new int[NSHARES];
-      Random r = new Random();
       shares[NSHARES - 1] = x;
       for (int i = 0; i < NSHARES - 1; i++) {
-         shares[i] = r.nextInt(P);
+         shares[i] = random();
          shares[NSHARES - 1] -= shares[i];
       }
 
       shares[NSHARES - 1] %= P;
+      if (shares[NSHARES - 1] < P) {
+         shares[NSHARES - 1] += P;
+      }
 
       return shares;
    }
-
 }
