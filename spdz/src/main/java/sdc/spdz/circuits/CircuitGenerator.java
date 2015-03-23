@@ -40,14 +40,19 @@ public class CircuitGenerator {
       return circuit;
    }
 
+   /**
+    * Generates a random Gate.
+    */
    private void stateOne() {
-      //Random random = new Random();
-      //gate = random.nextBoolean() ? Gate.PLUS : Gate.MULT;
+      //gate = Gate.getRandomGate();
       gate = Gate.PLUS;
 
       stateTwo();
    }
 
+   /**
+    * Decides which of the free edges will be the inputs of the random gate previously generated.
+    */
    private void stateTwo() {
       Random random = new Random();
 
@@ -63,12 +68,16 @@ public class CircuitGenerator {
       
       stateThree();
    }
-
+   
+   /**
+    * Creates a CircuitTriple with the random data previously generated.
+    * If there is more than one edge free, go back to state one.
+    */
    private void stateThree() {
       CircuitTriple ct = new CircuitTriple(P, gate, edgeOne, edgeTwo);
       triples.add(ct);
 
-      if (notOccupied.size() > 1) {
+      if (notOccupied.size() > 1) { // if notOccupied.size() == 1, the edge missing is the output of the circuit
          stateOne();
       }
    }
