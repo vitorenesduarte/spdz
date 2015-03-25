@@ -7,6 +7,7 @@ import sdc.spdz.circuits.operation.Gate;
 /**
  *
  * @author Vitor Enes (vitorenesduarte ~at~ gmail ~dot~ com)
+ * @author Paulo Silva
  */
 public class CircuitGenerator {
 

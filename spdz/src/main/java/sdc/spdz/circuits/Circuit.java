@@ -18,7 +18,7 @@ public class Circuit {
       this.inputSize = inputSize;
       this.edgesValues = new int[inputSize + triples.length];
    }
-
+   
    public void init(int... inputs) throws InvalidParamNumberException {
       if (inputSize == inputs.length) {
          System.arraycopy(inputs, 0, edgesValues, 0, inputSize);

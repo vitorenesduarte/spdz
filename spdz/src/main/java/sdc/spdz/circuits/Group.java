@@ -4,7 +4,8 @@ import java.util.Random;
 
 /**
  *
- * @author Vitor Enes (vitorenesduarte ~at~ gmail ~dot~ com)
+ * @author Vitor Enes (vitorenesduarte ~at~ gmail ~dot~ com) 
+ * @author Paulo Silva
  */
 public class Group {
 

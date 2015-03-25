@@ -8,9 +8,12 @@ import sdc.spdz.circuits.operation.InvalidParamNumberException;
 /**
  *
  * @author Vitor Enes (vitorenesduarte ~at~ gmail ~dot~ com)
+ * @author Paulo Silva
  */
 public class MainOne {
 
+   private static final Logger logger = Logger.getLogger(MainOne.class.getName());
+   
    public static void main(String[] args) {
       try {
          int P = 97;
@@ -22,7 +25,7 @@ public class MainOne {
          circuit.run();
          System.out.println(circuit.getResult());
       } catch (InvalidParamNumberException ex) {
-         Logger.getLogger(MainOne.class.getName()).log(Level.SEVERE, null, ex);
+         logger.log(Level.SEVERE, null, ex);
       }
 
    }

@@ -8,12 +8,13 @@ import java.util.Random;
  * @author Paulo Silva
  */
 public enum Gate {
+
    PLUS, MULT;
-   
-   public static Gate getRandomGate(){
+
+   public static Gate getRandomGate() {
       Random random = new Random();
       Gate gate = random.nextBoolean() ? Gate.PLUS : Gate.MULT;
-   
+
       return gate;
    }
 }
