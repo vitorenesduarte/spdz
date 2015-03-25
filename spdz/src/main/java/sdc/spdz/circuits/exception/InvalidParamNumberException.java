@@ -1,4 +1,4 @@
-package sdc.spdz.circuits.operation;
+package sdc.spdz.circuits.exception;
 
 /**
  *

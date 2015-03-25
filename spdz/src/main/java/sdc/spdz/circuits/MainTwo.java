@@ -3,7 +3,12 @@ package sdc.spdz.circuits;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import sdc.spdz.circuits.operation.InvalidParamNumberException;
+import sdc.spdz.circuits.exception.InvalidParamNumberException;
+import sdc.spdz.circuits.exception.InvalidPlayersException;
+import sdc.spdz.circuits.exception.ParamNotFoundException;
+import sdc.spdz.circuits.exception.UnknownExecutionModeException;
+import sdc.spdz.circuits.exception.UnknownOperationException;
+import sdc.spdz.circuits.player.Player;
 
 /**
  *
@@ -11,16 +16,19 @@ import sdc.spdz.circuits.operation.InvalidParamNumberException;
  * @author Paulo Silva
  */
 public class MainTwo {
-   
+
    private static final Logger logger = Logger.getLogger(MainTwo.class.getName());
 
-   public static void main(String[] args) {
+   public static void main(String[] args) throws UnknownExecutionModeException {
       try {
          int P = 41;
          int NINPUTS = 41;
          Group group = new Group(P);
-         CircuitGenerator generator = new CircuitGenerator(P);
+         CircuitGenerator generator = new CircuitGenerator();
          Circuit circuit = generator.generate(NINPUTS);
+         Player player = new Player("",0);
+         player.setCircuit(circuit);
+         player.setMOD(P);
 
          int[] inputs = new int[NINPUTS];
          int inputSum = 0;
@@ -38,38 +46,14 @@ public class MainTwo {
 
          int resultSum = 0;
          for (int i = 0; i < NINPUTS; i++) {
-            circuit.init(inputShares[i]);
-            circuit.run();
-            resultSum += circuit.getResult();
+            player.setInputs(inputShares[i]);
+            int result = player.evalCircuit(ExecutionMode.LOCAL);
+            resultSum += result;
          }
          System.out.println("RESULT : " + resultSum);
 
-      } catch (InvalidParamNumberException ex) {
+      } catch (InvalidParamNumberException | UnknownOperationException | ParamNotFoundException | InvalidPlayersException ex) {
          logger.log(Level.SEVERE, null, ex);
-      }
-
-   }
-
-   static class Worker extends Thread {
-
-      private int[] inputs;
-      private final Circuit circuit;
-
-      public Worker(Circuit c, int... inputs) {
-         this.circuit = c;
-         this.inputs = inputs.clone();
-      }
-
-      @Override
-      public void run() {
-         try {
-            circuit.init(inputs);
-            circuit.run();
-            System.out.println(circuit.getResult());
-
-         } catch (InvalidParamNumberException ex) {
-            logger.log(Level.SEVERE, null, ex);
-         }
       }
    }
 }

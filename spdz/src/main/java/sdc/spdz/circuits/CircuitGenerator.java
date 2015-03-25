@@ -2,7 +2,7 @@ package sdc.spdz.circuits;
 
 import java.util.ArrayList;
 import java.util.Random;
-import sdc.spdz.circuits.operation.Gate;
+import sdc.spdz.circuits.gate.GateType;
 
 /**
  *
@@ -12,15 +12,13 @@ import sdc.spdz.circuits.operation.Gate;
 public class CircuitGenerator {
 
    private final ArrayList<CircuitTriple> triples;
-   private final int P;
    private final ArrayList<Integer> notOccupied;
-   private Gate gate;
+   private GateType gate;
    private int edgeOne;
    private int edgeTwo;
    private int edgeCount;
 
-   public CircuitGenerator(int P) {
-      this.P = P;
+   public CircuitGenerator() {
       this.notOccupied = new ArrayList<>();
       this.triples = new ArrayList<>();
    }
@@ -46,7 +44,7 @@ public class CircuitGenerator {
     */
    private void stateOne() {
       //gate = Gate.getRandomGate();
-      gate = Gate.PLUS;
+      gate = GateType.PLUS;
 
       stateTwo();
    }
@@ -75,7 +73,7 @@ public class CircuitGenerator {
     * If there is more than one edge free, go back to state one.
     */
    private void stateThree() {
-      CircuitTriple ct = new CircuitTriple(P, gate, edgeOne, edgeTwo);
+      CircuitTriple ct = new CircuitTriple(gate, edgeOne, edgeTwo);
       triples.add(ct);
 
       if (notOccupied.size() > 1) { // if notOccupied.size() == 1, the edge missing is the output of the circuit

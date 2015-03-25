@@ -1,4 +1,4 @@
-package sdc.spdz.circuits.operation;
+package sdc.spdz.circuits.gate;
 
 import java.util.Random;
 
@@ -7,13 +7,13 @@ import java.util.Random;
  * @author Vitor Enes (vitorenesduarte ~at~ gmail ~dot~ com)
  * @author Paulo Silva
  */
-public enum Gate {
+public enum GateType {
 
    PLUS, MULT;
 
-   public static Gate getRandomGate() {
+   public static GateType getRandomGate() {
       Random random = new Random();
-      Gate gate = random.nextBoolean() ? Gate.PLUS : Gate.MULT;
+      GateType gate = random.nextBoolean() ? GateType.PLUS : GateType.MULT;
 
       return gate;
    }

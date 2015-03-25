@@ -1,10 +1,9 @@
 package sdc.spdz.circuits;
 
-import sdc.spdz.circuits.operation.Gate;
-import sdc.spdz.circuits.operation.InvalidParamNumberException;
-import sdc.spdz.circuits.operation.Operation;
-import sdc.spdz.circuits.operation.impl.Mult;
-import sdc.spdz.circuits.operation.impl.Plus;
+import sdc.spdz.circuits.exception.UnknownOperationException;
+import sdc.spdz.circuits.gate.GateType;
+import sdc.spdz.circuits.gate.Mult;
+import sdc.spdz.circuits.gate.Plus;
 
 /**
  *
@@ -13,33 +12,19 @@ import sdc.spdz.circuits.operation.impl.Plus;
  */
 public class CircuitTriple {
 
-   private final Gate gate;
+   private final GateType gate;
    private final int[] gateInputs;
-   private final int P;
 
-   public CircuitTriple(int P, Gate op, int... gateInputs) {
-      this.gate = op;
-      this.P = P;
+   public CircuitTriple(GateType gate, int... gateInputs) {
+      this.gate = gate;
       this.gateInputs = gateInputs.clone();
+   }
+
+   public GateType getGate() {
+      return gate;
    }
 
    public int[] getGateInputs() {
       return gateInputs;
-   }
-
-   public int eval(int[] params) throws InvalidParamNumberException {
-      Operation op = null;
-
-      switch (gate) {
-         case PLUS:
-            op = new Plus(P);
-            break;
-         case MULT:
-            op = new Mult(P);
-            break;
-      }
-
-      // it will never be null
-      return op.eval(params);
    }
 }
