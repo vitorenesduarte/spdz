@@ -1,7 +1,5 @@
 package sdc.spdz.circuits.player;
 
-import java.util.UUID;
-
 /**
  *
  * @author Vitor Enes (vitorenesduarte ~at~ gmail ~dot~ com)

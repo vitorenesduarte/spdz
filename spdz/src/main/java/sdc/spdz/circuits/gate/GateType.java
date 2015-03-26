@@ -1,6 +1,6 @@
 package sdc.spdz.circuits.gate;
 
-import java.util.Random;
+import java.security.SecureRandom;
 
 /**
  *
@@ -11,10 +11,10 @@ public enum GateType {
 
    PLUS, MULT;
 
-   public static GateType getRandomGate() {
-      Random random = new Random();
-      GateType gate = random.nextBoolean() ? GateType.PLUS : GateType.MULT;
+   private static final SecureRandom random = new SecureRandom();
 
+   public static GateType getRandomGate() {
+      GateType gate = random.nextBoolean() ? GateType.PLUS : GateType.MULT;
       return gate;
    }
 }

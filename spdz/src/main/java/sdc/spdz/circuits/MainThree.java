@@ -16,33 +16,38 @@ public class MainThree {
    private static final Logger logger = Logger.getLogger(MainThree.class.getName());
 
    public static void main(String[] args) throws UnknownExecutionModeException, InterruptedException {
-      int P = 41;
-      int NINPUTS = 100;
-      int NPLAYERS = 7;
-      Group group = new Group(P);
+      int MOD = 41;
+      int NINPUTS = 10;
+      int NPLAYERS = 100;
+      Group group = new Group(MOD);
+
+      int[] sumAll = new int[NPLAYERS];
 
       // generate a random circuit
       CircuitGenerator generator = new CircuitGenerator();
       Circuit circuit = generator.generate(NINPUTS);
 
       System.out.println(circuit.toString());
-
+      int numberOfCommunications = NPLAYERS * (NPLAYERS - 1) * circuit.getMultiplicationGatesCount();
+      System.out.println("Number of comunications : " + numberOfCommunications);
+      System.out.println("Number of players : " + NPLAYERS);
       // generate random inputs for the circuit
       int[] inputs = new int[NINPUTS];
       for (int i = 0; i < NINPUTS; i++) {
          inputs[i] = group.random();
       }
 
+      System.out.println("MOD " + MOD);
       System.out.println("SINGLE-PARTY:");
       // run the circuit with only one player
-      Player singlePlayer = new Player("", "", 0);
+      Player singlePlayer = new Player(0, "", 0, null);
       singlePlayer.setCircuit(circuit);
       singlePlayer.setExecutionMode(ExecutionMode.LOCAL);
-      singlePlayer.setMOD(P);
+      singlePlayer.setMOD(MOD);
       singlePlayer.setInputs(inputs);
       singlePlayer.start();
       singlePlayer.join();
-      System.out.println("MULTI-PARTY");
+      System.out.println("MULTI-PARTY:");
       // create shares for all the circuit's inputs
       // number of shares == number of players
       Inputs[] inputShares = new Inputs[NPLAYERS];
@@ -56,7 +61,7 @@ public class MainThree {
             inputShares[j].add(shares[j]);
          }
       }
-      
+
       // create random multiplication triples for all multiplication gates
       int numberOfMultiplications = circuit.getMultiplicationGatesCount();
       MultiplicationTriple[] multiplicationTriples = new MultiplicationTriple[numberOfMultiplications];
@@ -83,13 +88,13 @@ public class MainThree {
       Player[] players = new Player[NPLAYERS];
       ArrayList<PlayerID> playersID = new ArrayList();
       for (int i = 0; i < NPLAYERS; i++) {
-         players[i] = new Player("UID" + i, "localhost", 3000 + i);
+         players[i] = new Player(i, "localhost", 3000 + i, sumAll);
          playersID.add(players[i].getID());
       }
 
       for (int i = 0; i < NPLAYERS; i++) {
          players[i].setCircuit(circuit);
-         players[i].setMOD(P);
+         players[i].setMOD(MOD);
 
          players[i].setInputs(inputShares[i].get());
          players[i].setPreProcessedData(preProcessedData[i]);
@@ -101,12 +106,22 @@ public class MainThree {
          players[i].setPlayers(playersIDCopy);
       }
 
+      long start = System.currentTimeMillis();
       for (int i = 0; i < NPLAYERS; i++) {
          players[i].start();
       }
       for (int i = 0; i < NPLAYERS; i++) {
          players[i].join();
       }
+
+      int count = 0;
+      for (int i = 0; i < NPLAYERS; i++) {
+         count += sumAll[i];
+      }
+      count %= MOD;
+      System.out.println(count);
+
+      System.out.println(System.currentTimeMillis() - start);
 
    }
 }

@@ -18,6 +18,7 @@ import sdc.spdz.circuits.exception.InvalidPlayersException;
 import sdc.spdz.circuits.Circuit;
 import sdc.spdz.circuits.CircuitTriple;
 import sdc.spdz.circuits.ExecutionMode;
+import static sdc.spdz.circuits.ExecutionMode.LOCAL;
 import sdc.spdz.circuits.MultiplicationTriple;
 import sdc.spdz.circuits.PreProcessedData;
 import sdc.spdz.circuits.exception.InvalidParamNumberException;
@@ -44,11 +45,15 @@ public class Player extends Thread {
    private ArrayList<PlayerID> players;
    private PreProcessedData preProcessedData;
    private ExecutionMode executionMode;
+   private final int UID;
+   private final int[] sumAll;
 
-   public Player(String UID, String host, int port) {
-      this.playerID = new PlayerID(UID, host, port);
+   public Player(int UID, String host, int port, int[] sumAll) {
+      this.UID = UID;
+      this.playerID = new PlayerID("UID" + UID, host, port);
       sharesReady = new ArrayList<>();
       semaphore = new Semaphore(0);
+      this.sumAll = sumAll;
    }
 
    public PlayerID getID() {
@@ -88,6 +93,7 @@ public class Player extends Thread {
             checkPlayers();
             SocketReader reader = new SocketReader();
             reader.start();
+            Thread.sleep(1000);
          }
 
          CircuitTriple[] triples = circuit.getTriples();
@@ -128,8 +134,12 @@ public class Player extends Thread {
             edgesValues[inputs.length + i] = result;
          }
 
-         System.out.println(edgesValues[edgesValues.length - 1]);
-
+         int result = edgesValues[edgesValues.length - 1];
+         if (executionMode == LOCAL) {
+            System.out.println(result);
+         } else {
+            sumAll[UID] = result;
+         }
       } catch (InvalidParamNumberException | InvalidPlayersException | ParamNotFoundException | InterruptedException | UnknownExecutionModeException | UnknownOperationException ex) {
          logger.log(Level.SEVERE, null, ex);
       }
@@ -217,6 +227,8 @@ public class Player extends Thread {
             out.write(message);
             //out("mandei para " + pid.getUID() + " : " + message);
             out.flush();
+            out.close();
+            socket.close();
          }
       } catch (IOException ex) {
          logger.log(Level.SEVERE, null, ex);
@@ -260,6 +272,8 @@ public class Player extends Thread {
                      semaphore.release();
                   }
 
+                  in.close();
+                  socket.close();
                }
             }
          } catch (IOException ex) {
@@ -267,9 +281,8 @@ public class Player extends Thread {
          }
       }
    }
-   /*
-    public void out(String s) {
-    System.out.println(playerID.getUID() + " -> " + s);
-    }
-    */
+
+   public void out(String s) {
+      System.out.println(playerID.getUID() + " -> " + s);
+   }
 }

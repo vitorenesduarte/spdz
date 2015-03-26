@@ -1,6 +1,6 @@
 package sdc.spdz.circuits;
 
-import java.util.Random;
+import java.security.SecureRandom;
 
 /**
  *
@@ -10,14 +10,15 @@ import java.util.Random;
 public class Group {
 
    private final int MOD;
+   private final SecureRandom random;
 
    public Group(int MOD) {
       this.MOD = MOD;
+      this.random = new SecureRandom();
    }
 
    public int random() {
-      Random r = new Random();
-      return r.nextInt(MOD);
+      return random.nextInt(MOD);
    }
 
    public int[] createShares(int x, int NSHARES) {
