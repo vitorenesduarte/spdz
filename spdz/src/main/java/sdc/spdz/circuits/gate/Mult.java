@@ -19,7 +19,7 @@ public class Mult extends Gate {
    }
 
    public int evalDistributed(int dShared, int d, int e, MultiplicationTriple mt) {
-      int result = dShared * e - e * mt.getA() - d * mt.getB() + mt.getC();
+      int result = dShared * e + e * mt.getA() + d * mt.getB() + mt.getC();
       result %= getMOD();
       return result;
       // [xy] = [c] + e[b] + d[a] + d[e]

@@ -12,8 +12,9 @@ public class PlayerID {
    private final String host;
    private final int port;
 
-   public PlayerID(String host, int port) {
-      this.UID = UUID.randomUUID().toString();
+   public PlayerID(String UID, String host, int port) {
+      this.UID = UID;
+      //this.UID = UUID.randomUUID().toString();
       this.host = host;
       this.port = port;
    }

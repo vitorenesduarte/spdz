@@ -10,8 +10,16 @@ public class PreProcessedData {
 
    private final ArrayList<MultiplicationTriple> multiplicationTriples;
 
+   public PreProcessedData() {
+      this.multiplicationTriples = new ArrayList<>();
+   }
+
    public PreProcessedData(ArrayList<MultiplicationTriple> multiplicationTriples) {
       this.multiplicationTriples = multiplicationTriples;
+   }
+   
+   public void add(MultiplicationTriple triple){
+      this.multiplicationTriples.add(triple);
    }
 
    public MultiplicationTriple consume() {

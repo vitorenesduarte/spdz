@@ -43,8 +43,9 @@ public class CircuitGenerator {
     * Generates a random Gate.
     */
    private void stateOne() {
-      //gate = Gate.getRandomGate();
-      gate = GateType.PLUS;
+      gate = GateType.getRandomGate();
+      //gate = GateType.PLUS;
+      //gate = GateType.MULT;
 
       stateTwo();
    }

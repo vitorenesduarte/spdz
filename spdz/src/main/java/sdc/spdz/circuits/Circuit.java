@@ -1,7 +1,6 @@
 package sdc.spdz.circuits;
 
-import sdc.spdz.circuits.exception.InvalidParamNumberException;
-import sdc.spdz.circuits.exception.UnknownOperationException;
+import static sdc.spdz.circuits.gate.GateType.MULT;
 
 /**
  *
@@ -28,5 +27,26 @@ public class Circuit {
 
    public int getInputSize() {
       return inputSize;
+   }
+
+   public int getMultiplicationGatesCount() {
+      int count = 0;
+      for (CircuitTriple ct : triples) {
+         if (ct.getGate().equals(MULT)) {
+            count++;
+         }
+      }
+
+      return count;
+   }
+
+   @Override
+   public String toString() {
+      StringBuilder sb = new StringBuilder();
+      int i = inputSize;
+      for (CircuitTriple ct : triples) {
+         sb.append(i++).append(" : ").append(ct.toString()).append("\n");
+      }
+      return sb.toString();
    }
 }

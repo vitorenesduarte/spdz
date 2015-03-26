@@ -1,9 +1,9 @@
 package sdc.spdz.circuits;
 
-import sdc.spdz.circuits.exception.UnknownOperationException;
+import java.util.Arrays;
 import sdc.spdz.circuits.gate.GateType;
-import sdc.spdz.circuits.gate.Mult;
-import sdc.spdz.circuits.gate.Plus;
+import static sdc.spdz.circuits.gate.GateType.MULT;
+import static sdc.spdz.circuits.gate.GateType.PLUS;
 
 /**
  *
@@ -26,5 +26,18 @@ public class CircuitTriple {
 
    public int[] getGateInputs() {
       return gateInputs;
+   }
+
+   @Override
+   public String toString() {
+      StringBuilder sb = new StringBuilder();
+      if (gate.equals(MULT)) {
+         sb.append("< x , ");
+      } else if (gate.equals(PLUS)) {
+         sb.append("< + , ");
+      }
+      
+      sb.append(Arrays.toString(gateInputs)).append(">");
+      return sb.toString();
    }
 }
