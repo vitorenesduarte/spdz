@@ -35,6 +35,7 @@ public class Share {
       e += x;
    }
 
+   @Override
    public String toString() {
       return "{" + d + "," + e + "}";
    }

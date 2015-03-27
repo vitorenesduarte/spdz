@@ -1,5 +1,6 @@
 package sdc.spdz.circuits;
 
+import sdc.spdz.circuits.player.Inputs;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 import sdc.spdz.circuits.exception.UnknownExecutionModeException;
@@ -17,7 +18,7 @@ public class MainThree {
 
    public static void main(String[] args) throws UnknownExecutionModeException, InterruptedException {
       int MOD = 41;
-      int NINPUTS = 10;
+      int NINPUTS = 100;
       int NPLAYERS = 100;
       Group group = new Group(MOD);
 

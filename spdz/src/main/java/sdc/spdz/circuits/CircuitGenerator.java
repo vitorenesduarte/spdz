@@ -30,24 +30,23 @@ public class CircuitGenerator {
       for (int i = 0; i < NINPUTS; i++) {
          notOccupied.add(i);
       }
-      /*
-       while (notOccupied.size() > 1) { // if notOccupied.size() == 1, the edge missing is the output of the circuit
-       gate = GateType.getRandomGate();
-       int i = random.nextInt(notOccupied.size());
-       edgeOne = notOccupied.get(i);
-       notOccupied.remove(i);
+  
+      while (notOccupied.size() > 1) { // if notOccupied.size() == 1, the edge missing is the output of the circuit
+         gate = GateType.getRandomGate();
+         int i = random.nextInt(notOccupied.size());
+         edgeOne = notOccupied.get(i);
+         notOccupied.remove(i);
 
-       i = random.nextInt(notOccupied.size());
-       edgeTwo = notOccupied.get(i);
-       notOccupied.remove(i);
+         i = random.nextInt(notOccupied.size());
+         edgeTwo = notOccupied.get(i);
+         notOccupied.remove(i);
 
-       notOccupied.add(edgeCount++);
+         notOccupied.add(edgeCount++);
 
-       CircuitTriple ct = new CircuitTriple(gate, edgeOne, edgeTwo);
-       triples.add(ct);
-       }
-       */
-      stateOne();
+         CircuitTriple ct = new CircuitTriple(gate, edgeOne, edgeTwo);
+         triples.add(ct);
+      }
+//      stateOne();
 
       CircuitTriple[] cts = new CircuitTriple[triples.size()];
       for (int i = 0; i < triples.size(); i++) {

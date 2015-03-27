@@ -1,4 +1,4 @@
-package sdc.spdz.circuits;
+package sdc.spdz.circuits.player;
 
 /**
  *

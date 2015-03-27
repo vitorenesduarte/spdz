@@ -231,6 +231,7 @@ public class Player extends Thread {
             socket.close();
          }
       } catch (IOException ex) {
+         logger.info(message);
          logger.log(Level.SEVERE, null, ex);
       }
    }
@@ -252,8 +253,8 @@ public class Player extends Thread {
                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                String line = in.readLine();
                //out("recebi : " + line);
-               String[] parts = line.split(MESSAGE_SEPARATOR);
-               if (parts.length == 4) {
+               String[] parts = line != null ? line.split(MESSAGE_SEPARATOR) : null;
+               if (parts != null && parts.length == 4) {
                   int mult = Integer.valueOf(parts[0]);
                   int dShare = Integer.valueOf(parts[2]);
                   int eShare = Integer.valueOf(parts[3]);
@@ -272,9 +273,9 @@ public class Player extends Thread {
                      semaphore.release();
                   }
 
-                  in.close();
-                  socket.close();
                }
+               in.close();
+               socket.close();
             }
          } catch (IOException ex) {
             logger.log(Level.SEVERE, null, ex);
