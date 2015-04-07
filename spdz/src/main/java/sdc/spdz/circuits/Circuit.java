@@ -44,8 +44,12 @@ public class Circuit {
    public String toString() {
       StringBuilder sb = new StringBuilder();
       int i = inputSize;
+      int multiplicationCount = 0;
       for (CircuitTriple ct : triples) {
-         sb.append(i++).append(" : ").append(ct.toString()).append("\n");
+         if(ct.getGate()==MULT){
+            sb.append("[").append(multiplicationCount++).append("]");
+         }
+         sb.append("\t").append(i++).append(" : ").append(ct.toString()).append("\n");
       }
       return sb.toString();
    }

@@ -1,24 +1,27 @@
-package sdc.spdz.circuits;
+package sdc.spdz.circuits.player;
 
-import sdc.spdz.circuits.player.Inputs;
 import java.util.ArrayList;
 import java.util.logging.Logger;
+import sdc.spdz.circuits.Circuit;
+import sdc.spdz.circuits.CircuitGenerator;
+import sdc.spdz.circuits.ExecutionMode;
+import sdc.spdz.circuits.Group;
+import sdc.spdz.circuits.MultiplicationTriple;
+import sdc.spdz.circuits.PreProcessedData;
 import sdc.spdz.circuits.exception.UnknownExecutionModeException;
-import sdc.spdz.circuits.player.Player;
-import sdc.spdz.circuits.player.PlayerID;
 
 /**
  *
  * @author Vitor Enes (vitorenesduarte ~at~ gmail ~dot~ com)
  * @author Paulo Silva
  */
-public class MainThree {
+public class Main {
 
-   private static final Logger logger = Logger.getLogger(MainThree.class.getName());
+   private static final Logger logger = Logger.getLogger(Main.class.getName());
 
    public static void main(String[] args) throws UnknownExecutionModeException, InterruptedException {
       int MOD = 41;
-      int NINPUTS = 100;
+      int NINPUTS = 10;
       int NPLAYERS = 100;
       Group group = new Group(MOD);
 

@@ -2,14 +2,17 @@ package sdc.spdz.circuits.jung;
 
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
+import edu.uci.ics.jung.graph.DirectedSparseGraph;
 import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.SparseMultigraph;
-import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
+import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
+import java.awt.Color;
 import java.awt.Dimension;
-import java.util.HashMap;
-import java.util.Map;
+import java.awt.Paint;
+import java.awt.Shape;
+import java.awt.geom.Ellipse2D;
 import javax.swing.JFrame;
+import org.apache.commons.collections15.Transformer;
 
 /**
  *
@@ -19,20 +22,44 @@ public class Tutorial {
 
    public static void main(String[] args) {
 
-      Map<Integer, Integer> m = new HashMap();
-      m.put(1,2);
-      m.put(3,4);
-      System.out.println(m.toString());
-      
       SimpleGraphView sgv = new SimpleGraphView(); //We create our graph in here
       // The Layout<V, E> is parameterized by the vertex and edge types
-      Layout<Integer, String> layout = new CircleLayout(sgv.g);
+      Layout<String, String> layout = new CircleLayout(sgv.g);
       layout.setSize(new Dimension(300, 300)); // sets the initial size of the space
       // The BasicVisualizationServer<V,E> is parameterized by the edge types
-      BasicVisualizationServer<Integer, String> vv
+      BasicVisualizationServer<String, String> vv
               = new BasicVisualizationServer<>(layout);
       vv.setPreferredSize(new Dimension(350, 350)); //Sets the viewing area size
 
+      // Setup up a new vertex to paint transformer...
+      Transformer<String, Paint> vertexPaint = new Transformer<String, Paint>() {
+         @Override
+         public Paint transform(String s) {
+            return Color.LIGHT_GRAY;
+         }
+      };
+
+      Transformer<String, String> labelTransformer = new Transformer<String, String>() {
+         @Override
+         public String transform(String s) {
+            return s.split("::")[2];
+         }
+      };
+      Transformer<String, Shape> vertexSize = new Transformer<String, Shape>() {
+         @Override
+         public Shape transform(String s) {
+            Ellipse2D circle = new Ellipse2D.Double(-15, -15, s.length()*5, s.length()*5);
+            return circle;
+         }
+      };
+      vv.getRenderContext().setVertexShapeTransformer(vertexSize);
+      vv.getRenderContext().setVertexFillPaintTransformer(vertexPaint);
+      vv.getRenderContext().setVertexLabelTransformer(labelTransformer);
+      vv.getRenderContext().setEdgeLabelTransformer(labelTransformer);
+      vv.getRenderer().getVertexLabelRenderer().setPosition(Position.CNTR);
+      vv.getRenderContext().setLabelOffset(20);
+
+//other operations
       JFrame frame = new JFrame("Simple Graph View");
       frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
       frame.getContentPane().add(vv);
@@ -42,8 +69,8 @@ public class Tutorial {
 
    public static class SimpleGraphView {
 
-      Graph g;
-      Graph g2;
+      Graph<String, String> g;
+      Graph<String, String> g2;
 
       public SimpleGraphView() {
          init();
@@ -52,28 +79,21 @@ public class Tutorial {
       private void init() {
          // Graph<V, E> where V is the type of the vertices
          // and E is the type of the edges
-         g = new SparseMultigraph<>();
+         g = new DirectedSparseGraph<>();
          // Add some vertices. From above we defined these to be type Integer.
-         g.addVertex((Integer) 1);
-         g.addVertex((Integer) 2);
-         g.addVertex((Integer) 3);
+
+         g.addVertex("a::a::x");
+         g.addVertex("a::a::y");
+         g.addVertex("a::a::z");
+         g.addVertex("a::a::Pre-Mult");
+         g.addVertex("a::a::Plus");
+         g.addVertex("a::a::Mult");
+         g.addVertex("a::a::Mult");
          // Add some edges. From above we defined these to be of type String
          // Note that the default is for undirected edges.
-         g.addEdge("Edge-A", 1, 2); // Note that Java 1.5 auto-boxes primitives
-         g.addEdge("Edge-B", 2, 3);
-         // Let's see what we have. Note the nice output from the
-         // SparseMultigraph<V,E> toString() method
-         System.out.println("The graph g = " + g.toString());
-         // Note that we can use the same nodes and edges in two different graphs.
-         g2 = new SparseMultigraph<>();
-         g2.addVertex((Integer) 1);
-         g2.addVertex((Integer) 2);
-         g2.addVertex((Integer) 3);
-         g2.addEdge("Edge-A", 1, 3);
-         g2.addEdge("Edge-B", 2, 3, EdgeType.DIRECTED);
-         g2.addEdge("Edge-C", 3, 2, EdgeType.DIRECTED);
-         g2.addEdge("Edge-P", 2, 3); // A parallel edge
-         System.out.println("The graph g2 = " + g2.toString());
+         g.addEdge("a::a::0", "a::a::x", "a::a::Pre-Mult");
+         g.addEdge("a::a::1", "a::a::y", "a::a::Pre-Mult");
+
       }
    }
 }
