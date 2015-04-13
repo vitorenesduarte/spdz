@@ -25,7 +25,7 @@ public class Tutorial {
       SimpleGraphView sgv = new SimpleGraphView(); //We create our graph in here
       // The Layout<V, E> is parameterized by the vertex and edge types
       Layout<String, String> layout = new CircleLayout(sgv.g);
-      layout.setSize(new Dimension(1000, 1000)); // sets the initial size of the space
+      layout.setSize(new Dimension(300, 300)); // sets the initial size of the space
       // The BasicVisualizationServer<V,E> is parameterized by the edge types
       BasicVisualizationServer<String, String> vv
               = new BasicVisualizationServer<>(layout);
