@@ -4,13 +4,14 @@ package sdc.avoidingproblems.circuits.exception;
  *
  * @author Vitor Enes (vitorenesduarte ~at~ gmail ~dot~ com)
  */
-public class ParamNotFoundException extends Exception {
+public class OperationNotSupportedException extends Exception {
 
-   public ParamNotFoundException() {
+   public OperationNotSupportedException() {
       super();
    }
-
-   public ParamNotFoundException(String message) {
+   
+   public OperationNotSupportedException(String message){
       super(message);
    }
+
 }

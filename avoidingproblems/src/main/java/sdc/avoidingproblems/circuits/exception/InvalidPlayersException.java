@@ -9,5 +9,8 @@ public class InvalidPlayersException extends Exception {
    public InvalidPlayersException() {
       super();
    }
-
+   
+   public InvalidPlayersException(String message){
+      super(message);
+   }
 }
