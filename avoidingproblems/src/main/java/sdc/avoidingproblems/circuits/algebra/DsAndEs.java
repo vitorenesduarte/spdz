@@ -1,19 +1,21 @@
 package sdc.avoidingproblems.circuits.algebra;
 
+import sdc.avoidingproblems.circuits.exception.ClassNotSupportedException;
+
 /**
  *
  * @author Vitor Enes (vitorenesduarte ~at~ gmail ~dot~ com)
  */
-public class Share {
+public class DsAndEs {
 
    private FieldElement d, e;
    private final int MOD;
    private int numberOfShares;
 
-   public Share(int d, int e, int MOD) {
+   public DsAndEs(int d, int e, int MOD, Class<?> clazz) throws ClassNotSupportedException {
       this.MOD = MOD;
-      this.d = new BigIntegerFE(d, MOD);
-      this.e = new BigIntegerFE(e, MOD);
+      this.d = Util.getFieldElementInstance(clazz, d, MOD);
+      this.e = Util.getFieldElementInstance(clazz, e, MOD);
       this.numberOfShares = 1;
    }
 

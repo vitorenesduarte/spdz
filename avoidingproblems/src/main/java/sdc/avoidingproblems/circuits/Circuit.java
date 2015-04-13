@@ -1,6 +1,12 @@
 package sdc.avoidingproblems.circuits;
 
+import java.util.ArrayList;
 import java.util.List;
+import static sdc.avoidingproblems.circuits.ExecutionMode.LOCAL;
+import sdc.avoidingproblems.circuits.algebra.FieldElement;
+import sdc.avoidingproblems.circuits.algebra.ValueAndMAC;
+import sdc.avoidingproblems.circuits.exception.ExecutionModeNotSupportedException;
+import sdc.avoidingproblems.circuits.exception.InvalidParamException;
 
 /**
  *
@@ -38,6 +44,24 @@ public class Circuit {
       }
 
       return count;
+   }
+
+   public FieldElement eval(List<FieldElement> inputs) throws InvalidParamException, ExecutionModeNotSupportedException {
+      List<ValueAndMAC> values = new ArrayList();
+      for (FieldElement fe : inputs) {
+         values.add(new ValueAndMAC(fe, fe)); // fake fake fake
+      }
+      for (Gate gate : gates) {
+         List<Integer> inputEdges = gate.getInputEdges();
+         ValueAndMAC[] params = new ValueAndMAC[inputEdges.size()];
+         for (int j = 0; j < inputEdges.size(); j++) {
+            params[j] = values.get(inputEdges.get(j));
+         }
+
+         values.add(GateSemantic.getFunction(gate.getSemantic()).apply(LOCAL, null, null, null, params));
+      }
+
+      return values.get(values.size() - 1).getValue();
    }
 
    @Override

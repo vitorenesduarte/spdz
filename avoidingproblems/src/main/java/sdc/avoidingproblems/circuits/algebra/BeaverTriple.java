@@ -5,24 +5,25 @@ package sdc.avoidingproblems.circuits.algebra;
  * @author Vitor Enes (vitorenesduarte ~at~ gmail ~dot~ com)
  */
 public class BeaverTriple {
-   private final FieldElement a, b, c;
 
-   public BeaverTriple(FieldElement a, FieldElement b, FieldElement c) {
+   private final ValueAndMAC a, b, c;
+
+   public BeaverTriple(ValueAndMAC a, ValueAndMAC b, ValueAndMAC c) {
       this.a = a;
       this.b = b;
       this.c = c;
    }
 
-   public FieldElement getA() {
+   public ValueAndMAC getA() {
       return a;
    }
 
-   public FieldElement getB() {
+   public ValueAndMAC getB() {
       return b;
    }
 
-   public FieldElement getC() {
+   public ValueAndMAC getC() {
       return c;
    }
-   
+
 }

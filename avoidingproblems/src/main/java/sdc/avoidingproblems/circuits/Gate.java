@@ -2,6 +2,7 @@ package sdc.avoidingproblems.circuits;
 
 import java.util.List;
 import sdc.avoidingproblems.circuits.algebra.FieldElement;
+import sdc.avoidingproblems.circuits.algebra.ValueAndMAC;
 import sdc.avoidingproblems.circuits.exception.InvalidParamException;
 import sdc.avoidingproblems.circuits.exception.ExecutionModeNotSupportedException;
 
@@ -25,10 +26,6 @@ public class Gate {
 
    public List<Integer> getInputEdges() {
       return inputEdges;
-   }
-
-   public FieldElement eval(ExecutionMode mode, FieldElement... params) throws InvalidParamException, ExecutionModeNotSupportedException {
-      return GateSemantic.getFunction(semantic).apply(mode, params);
    }
 
    @Override

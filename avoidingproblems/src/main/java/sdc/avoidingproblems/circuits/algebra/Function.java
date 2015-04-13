@@ -10,7 +10,6 @@ import sdc.avoidingproblems.circuits.exception.ExecutionModeNotSupportedExceptio
  */
 public interface Function {
 
-   FieldElement apply(ExecutionMode mode, FieldElement... params) throws InvalidParamException, ExecutionModeNotSupportedException;
+   ValueAndMAC apply(ExecutionMode mode, BeaverTriple triple, FieldElement d, FieldElement e, ValueAndMAC... params) throws InvalidParamException, ExecutionModeNotSupportedException;
 
-   void setBeaverTriple(BeaverTriple triple);
 }

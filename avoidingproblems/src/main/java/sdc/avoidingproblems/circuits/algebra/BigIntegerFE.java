@@ -17,6 +17,11 @@ public class BigIntegerFE implements FieldElement {
    }
 
    @Override
+   public int intValue() {
+      return elem.intValue();
+   }
+
+   @Override
    public FieldElement add(FieldElement fe) {
       BigInteger result = this.elem.add(BigInteger.valueOf(fe.intValue()));
       result = result.mod(MOD);
@@ -38,8 +43,9 @@ public class BigIntegerFE implements FieldElement {
    }
 
    @Override
-   public int intValue() {
-      return elem.intValue();
+   public FieldElement getInstance(int value, int MOD) {
+      BigIntegerFE instance = new BigIntegerFE(value, MOD);
+      return instance;
    }
 
    @Override

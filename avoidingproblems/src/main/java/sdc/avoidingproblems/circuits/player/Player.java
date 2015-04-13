@@ -1,6 +1,6 @@
 package sdc.avoidingproblems.circuits.player;
 
-import sdc.avoidingproblems.circuits.algebra.Share;
+import sdc.avoidingproblems.circuits.algebra.DsAndEs;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -17,7 +17,6 @@ import java.util.logging.Logger;
 import sdc.avoidingproblems.circuits.exception.ExecutionModeNotSupportedException;
 import sdc.avoidingproblems.circuits.exception.InvalidPlayersException;
 import sdc.avoidingproblems.circuits.Circuit;
-import sdc.avoidingproblems.circuits.ExecutionMode;
 import static sdc.avoidingproblems.circuits.ExecutionMode.DISTRIBUTED;
 import static sdc.avoidingproblems.circuits.ExecutionMode.LOCAL;
 import sdc.avoidingproblems.circuits.Gate;
@@ -26,8 +25,9 @@ import static sdc.avoidingproblems.circuits.GateSemantic.MULT;
 import static sdc.avoidingproblems.circuits.GateSemantic.PLUS;
 import sdc.avoidingproblems.circuits.PreProcessedData;
 import sdc.avoidingproblems.circuits.algebra.BeaverTriple;
-import sdc.avoidingproblems.circuits.algebra.FieldElement;
 import sdc.avoidingproblems.circuits.algebra.Function;
+import sdc.avoidingproblems.circuits.algebra.ValueAndMAC;
+import sdc.avoidingproblems.circuits.exception.ClassNotSupportedException;
 import sdc.avoidingproblems.circuits.exception.InvalidParamException;
 import sdc.avoidingproblems.circuits.exception.OperationNotSupportedException;
 
@@ -41,19 +41,18 @@ public class Player extends Thread {
    private final String MESSAGE_SEPARATOR = "::";
    private int countDistributedMultiplications = 0;
    private final Semaphore semaphore = new Semaphore(0);
-   private final List<Share> sharesReady = new ArrayList();
+   private final List<DsAndEs> sharesReady = new ArrayList();
 
    private final PlayerID playerID;
    private Circuit circuit;
-   private List<FieldElement> inputs;
+   private List<ValueAndMAC> sharedInputs;
    private Integer MOD;
    private List<PlayerID> players;
    private PreProcessedData preProcessedData;
-   private ExecutionMode executionMode;
    private final int UID;
-   private final List<FieldElement> sumAll;
+   private final List<ValueAndMAC> sumAll;
 
-   public Player(int UID, String host, int port, List<FieldElement> sumAll) {
+   public Player(int UID, String host, int port, List<ValueAndMAC> sumAll) {
       this.UID = UID;
       this.playerID = new PlayerID("UID" + UID, host, port);
       this.sumAll = sumAll;
@@ -67,8 +66,8 @@ public class Player extends Thread {
       this.circuit = circuit;
    }
 
-   public void setInputs(List<FieldElement> inputs) {
-      this.inputs = inputs;
+   public void setInputs(List<ValueAndMAC> sharedInputs) {
+      this.sharedInputs = sharedInputs;
    }
 
    public void setMOD(int MOD) {
@@ -83,50 +82,35 @@ public class Player extends Thread {
       this.players = otherPlayers;
    }
 
-   public void setExecutionMode(ExecutionMode executionMode) {
-      this.executionMode = executionMode;
-   }
-
    @Override
    public void run() {
       try {
          checkParams();
-         if (executionMode.equals(ExecutionMode.DISTRIBUTED)) {
-            checkPreProcessedData();
-            checkPlayers();
-            SocketReader reader = new SocketReader();
-            reader.start();
-            Thread.sleep(1000);
-         }
+         checkPreProcessedData();
+         checkPlayers();
+         SocketReader reader = new SocketReader();
+         reader.start();
+         Thread.sleep(1000);
 
          List<Gate> gates = circuit.getGates();
-         List<FieldElement> edgesValues = initEdgesValues();
+         List<ValueAndMAC> edgesValues = initEdgesValues();
 
          for (Gate gate : gates) {
             List<Integer> inputEdges = gate.getInputEdges();
-            FieldElement[] params = new FieldElement[inputEdges.size()];
+            ValueAndMAC[] params = new ValueAndMAC[inputEdges.size()];
             for (int j = 0; j < inputEdges.size(); j++) {
                params[j] = edgesValues.get(inputEdges.get(j));
             }
 
-            FieldElement result;
+            ValueAndMAC result;
             GateSemantic semantic = gate.getSemantic();
 
             switch (semantic) {
                case MULT:
-                  switch (executionMode) {
-                     case LOCAL:
-                        result = GateSemantic.getFunction(semantic).apply(LOCAL, params);
-                        break;
-                     case DISTRIBUTED:
-                        result = evalDistributedMult(params[0], params[1], preProcessedData.consume(), countDistributedMultiplications++);
-                        break;
-                     default:
-                        throw new ExecutionModeNotSupportedException();
-                  }
+                  result = evalDistributedMult(params[0], params[1], preProcessedData.consume(), countDistributedMultiplications++);
                   break;
                case PLUS:
-                  result = GateSemantic.getFunction(semantic).apply(LOCAL, params);
+                  result = GateSemantic.getFunction(semantic).apply(LOCAL, null, null, null, params);
                   break;
                default:
                   throw new OperationNotSupportedException();
@@ -134,12 +118,8 @@ public class Player extends Thread {
             edgesValues.add(result);
          }
 
-         FieldElement result = edgesValues.get(edgesValues.size() - 1);
-         if (executionMode == LOCAL) {
-            System.out.println("RESULT: " + result.intValue());
-         } else {
-            sumAll.add(result);
-         }
+         ValueAndMAC result  = edgesValues.get(edgesValues.size() - 1);
+         sumAll.add(result);
       } catch (InvalidParamException | InvalidPlayersException | InterruptedException | ExecutionModeNotSupportedException | OperationNotSupportedException ex) {
          logger.log(Level.SEVERE, null, ex);
       }
@@ -149,17 +129,14 @@ public class Player extends Thread {
       if (circuit == null) {
          throw new InvalidParamException("Circuit Not Found");
       }
-      if (inputs == null) {
+      if (sharedInputs == null) {
          throw new InvalidParamException("Inputs Not Found");
       }
-      if (circuit.getInputSize() != inputs.size()) {
+      if (circuit.getInputSize() != sharedInputs.size()) {
          throw new InvalidParamException("Circuit's number of inputs is different from inputs lenght");
       }
       if (MOD == null) {
          throw new InvalidParamException("MOD Not Found");
-      }
-      if (executionMode == null) {
-         throw new InvalidParamException("Execution Mode Not Found");
       }
    }
 
@@ -180,34 +157,33 @@ public class Player extends Thread {
       }
    }
 
-   private List<FieldElement> initEdgesValues() {
-      List<FieldElement> edgesValues = new ArrayList(inputs.size() + circuit.getGateCount());
-      for (FieldElement fe : inputs) {
-         edgesValues.add(fe);
+   private List<ValueAndMAC> initEdgesValues() {
+      List<ValueAndMAC> edgesValues = new ArrayList(sharedInputs.size() + circuit.getGateCount());
+      for (ValueAndMAC vam : sharedInputs) {
+         edgesValues.add(vam);
       }
       return edgesValues;
    }
 
-   private FieldElement evalDistributedMult(FieldElement x, FieldElement y, BeaverTriple triple, int countDistributedMultiplications) throws InterruptedException, InvalidParamException, ExecutionModeNotSupportedException {
-      FieldElement dShared = x.sub(triple.getA()); // x is now equals to dShared
-      FieldElement eShared = y.sub(triple.getB()); // y is now equals to eShared
+   private ValueAndMAC evalDistributedMult(ValueAndMAC x, ValueAndMAC y, BeaverTriple triple, int countDistributedMultiplications) throws InterruptedException, InvalidParamException, ExecutionModeNotSupportedException {
+      ValueAndMAC dShared = x.sub(triple.getA());
+      ValueAndMAC eShared = y.sub(triple.getB());
 
       String message = countDistributedMultiplications + MESSAGE_SEPARATOR
               + playerID.getUID() + MESSAGE_SEPARATOR
-              + dShared.intValue() + MESSAGE_SEPARATOR
-              + eShared.intValue() + "\n";
+              + dShared.getValue().intValue() + MESSAGE_SEPARATOR
+              + eShared.getValue().intValue() + "\n";
       //count::uid_i::d_i::e_i
 
       sendToPlayers(message);
 
       semaphore.acquire();
-      Share readyShare = sharesReady.remove(0);
-      readyShare.addToD(dShared.intValue());
-      readyShare.addToE(eShared.intValue());
+      DsAndEs readyShare = sharesReady.remove(0);
+      readyShare.addToD(dShared.getValue().intValue());
+      readyShare.addToE(eShared.getValue().intValue());
 
       Function f = GateSemantic.getFunction(MULT);
-      f.setBeaverTriple(triple);
-      FieldElement result = f.apply(DISTRIBUTED, dShared, readyShare.getD(), readyShare.getE());
+      ValueAndMAC result = f.apply(DISTRIBUTED, triple, readyShare.getD(), readyShare.getE(), dShared);
       return result;
    }
 
@@ -230,7 +206,7 @@ public class Player extends Thread {
 
    private class SocketReader extends Thread {
 
-      private final Map<Integer, Share> mapGateToShares;
+      private final Map<Integer, DsAndEs> mapGateToShares;
 
       private SocketReader() {
          this.mapGateToShares = new HashMap();
@@ -251,12 +227,12 @@ public class Player extends Thread {
                   int dShare = Integer.valueOf(parts[2]);
                   int eShare = Integer.valueOf(parts[3]);
                   if (mapGateToShares.containsKey(mult)) {
-                     Share share = mapGateToShares.get(mult);
+                     DsAndEs share = mapGateToShares.get(mult);
                      share.addToD(dShare);
                      share.addToE(eShare);
                      share.incrNumberOfShares();
                   } else {
-                     Share tuple = new Share(dShare, eShare, MOD);
+                     DsAndEs tuple = new DsAndEs(dShare, eShare, MOD, sharedInputs.get(0).getValue().getClass());
                      mapGateToShares.put(mult, tuple);
                   }
 
@@ -269,7 +245,7 @@ public class Player extends Thread {
                in.close();
                socket.close();
             }
-         } catch (IOException ex) {
+         } catch (IOException | ClassNotSupportedException ex) {
             logger.log(Level.SEVERE, null, ex);
          }
       }

@@ -26,17 +26,24 @@ public class Field {
 
    public FieldElement random(Class<?> clazz) throws ClassNotSupportedException {
       int value = random.nextInt(MOD);
-      try {
-         Constructor<?> constructor = clazz.getConstructor(Integer.class, Integer.class);
-         FieldElement result = (FieldElement) constructor.newInstance(value, MOD);
-         return result;
-      } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-         throw new ClassNotSupportedException(ex.getMessage());
-         // maybe we're swallowing too many exceptions
-      }
+      FieldElement result = Util.getFieldElementInstance(clazz, value, MOD);
+      return result;
    }
 
-   public FieldElement[] createShares(FieldElement x, int NSHARES) {
+   // TO-DO : verify this
+   public ValueAndMAC[] createShares(ValueAndMAC vam, int NSHARES) {
+      FieldElement[] valueShares = createShares(vam.getValue(), NSHARES);
+      FieldElement[] MACShares = createShares(vam.getMAC(), NSHARES);
+
+      ValueAndMAC[] shares = new ValueAndMAC[NSHARES];
+      for (int i = 0; i < NSHARES; i++) {
+         shares[i] = new ValueAndMAC(valueShares[i], MACShares[i]);
+      }
+
+      return shares;
+   }
+
+   private FieldElement[] createShares(FieldElement x, int NSHARES) {
       FieldElement[] shares = new FieldElement[NSHARES];
       shares[NSHARES - 1] = x;
       for (int i = 0; i < NSHARES - 1; i++) {
@@ -50,12 +57,20 @@ public class Field {
       return shares;
    }
 
-   public BeaverTriple randomMultiplicationTriple(Class<?> clazz) throws ClassNotSupportedException {
-      FieldElement a = random(clazz);
-      FieldElement b = random(clazz);
-      FieldElement c = a.mult(b);
+   public BeaverTriple randomMultiplicationTriple(Class<?> clazz, FieldElement fixedMACKey) throws ClassNotSupportedException {
 
-      BeaverTriple triple = new BeaverTriple(a, b, c);
+      FieldElement a = random(clazz);
+      FieldElement aMAC = a.mult(fixedMACKey);
+      FieldElement b = random(clazz);
+      FieldElement bMAC = b.mult(fixedMACKey);
+      FieldElement c = a.mult(b);
+      FieldElement cMAC = c.mult(fixedMACKey);
+
+      ValueAndMAC aAndMAC = new ValueAndMAC(a, aMAC);
+      ValueAndMAC bAndMAC = new ValueAndMAC(b, bMAC);
+      ValueAndMAC cAndMAC = new ValueAndMAC(c, cMAC);
+
+      BeaverTriple triple = new BeaverTriple(aAndMAC, bAndMAC, cAndMAC);
       return triple;
    }
 }

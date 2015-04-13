@@ -1,6 +1,7 @@
 package sdc.avoidingproblems.circuits.algebra;
 
 import sdc.avoidingproblems.circuits.ExecutionMode;
+import sdc.avoidingproblems.circuits.exception.ExecutionModeNotSupportedException;
 import sdc.avoidingproblems.circuits.exception.InvalidParamException;
 
 /**
@@ -13,19 +14,14 @@ public class PlusFunction implements Function {
    }
 
    @Override
-   public FieldElement apply(ExecutionMode mode, FieldElement... params) throws InvalidParamException {
+   public ValueAndMAC apply(ExecutionMode mode, BeaverTriple triple, FieldElement d, FieldElement e, ValueAndMAC... params) throws InvalidParamException, ExecutionModeNotSupportedException {
       if (params.length != 2) {
          throw new InvalidParamException("Invalid param number");
       } else {
-         FieldElement x = params[0];
-         FieldElement y = params[1];
-         FieldElement result = x.add(y);
+         ValueAndMAC x = params[0];
+         ValueAndMAC y = params[1];
          return x.add(y);
       }
    }
 
-   @Override
-   public void setBeaverTriple(BeaverTriple triple) {
-      throw new UnsupportedOperationException("Plus function does not need beaver multiplication triples"); //To change body of generated methods, choose Tools | Templates.
-   }
 }
