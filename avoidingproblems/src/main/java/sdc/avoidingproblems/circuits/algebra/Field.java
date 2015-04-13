@@ -53,7 +53,7 @@ public class Field {
    public BeaverTriple randomMultiplicationTriple(Class<?> clazz) throws ClassNotSupportedException {
       FieldElement a = random(clazz);
       FieldElement b = random(clazz);
-      FieldElement c = new BigIntegerFE(a.intValue(), MOD).mult(b);
+      FieldElement c = a.mult(b);
 
       BeaverTriple triple = new BeaverTriple(a, b, c);
       return triple;
