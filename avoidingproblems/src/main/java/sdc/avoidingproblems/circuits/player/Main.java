@@ -1,14 +1,17 @@
 package sdc.avoidingproblems.circuits.player;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 import sdc.avoidingproblems.circuits.Circuit;
 import sdc.avoidingproblems.circuits.CircuitGenerator;
 import sdc.avoidingproblems.circuits.ExecutionMode;
-import sdc.avoidingproblems.circuits.Group;
-import sdc.avoidingproblems.circuits.MultiplicationTriple;
+import sdc.avoidingproblems.circuits.algebra.Field;
 import sdc.avoidingproblems.circuits.PreProcessedData;
-import sdc.avoidingproblems.circuits.exception.UnknownExecutionModeException;
+import sdc.avoidingproblems.circuits.algebra.BeaverTriple;
+import sdc.avoidingproblems.circuits.algebra.BigIntegerFE;
+import sdc.avoidingproblems.circuits.algebra.FieldElement;
+import sdc.avoidingproblems.circuits.exception.ExecutionModeNotSupportedException;
 
 /**
  *
@@ -17,15 +20,13 @@ import sdc.avoidingproblems.circuits.exception.UnknownExecutionModeException;
  */
 public class Main {
 
-   private static final Logger logger = Logger.getLogger(Main.class.getName());
-
-   public static void main(String[] args) throws UnknownExecutionModeException, InterruptedException {
+   public static void main(String[] args) throws ExecutionModeNotSupportedException, InterruptedException {
       int MOD = 41;
       int NINPUTS = 10;
-      int NPLAYERS = 100;
-      Group group = new Group(MOD);
+      int NPLAYERS = 3;
+      Field field = new Field(MOD);
 
-      int[] sumAll = new int[NPLAYERS];
+      List<FieldElement> sumAll = new ArrayList(NPLAYERS);
 
       // generate a random circuit
       CircuitGenerator generator = new CircuitGenerator();
@@ -36,11 +37,12 @@ public class Main {
       System.out.println("Number of comunications : " + numberOfCommunications);
       System.out.println("Number of players : " + NPLAYERS);
       // generate random inputs for the circuit
-      int[] inputs = new int[NINPUTS];
+      List<FieldElement> inputs = new ArrayList(NINPUTS);
       for (int i = 0; i < NINPUTS; i++) {
-         inputs[i] = group.random();
+         inputs.add(field.random());
       }
 
+      System.out.println("INPUTS: " + inputs.toString());
       System.out.println("MOD " + MOD);
       System.out.println("SINGLE-PARTY:");
       // run the circuit with only one player
@@ -60,7 +62,7 @@ public class Main {
       }
 
       for (int i = 0; i < NINPUTS; i++) {
-         int[] shares = group.createShares(inputs[i], NPLAYERS);
+         FieldElement[] shares = field.createShares(inputs.get(i), NPLAYERS);
          for (int j = 0; j < NPLAYERS; j++) {
             inputShares[j].add(shares[j]);
          }
@@ -68,9 +70,9 @@ public class Main {
 
       // create random multiplication triples for all multiplication gates
       int numberOfMultiplications = circuit.getMultiplicationGatesCount();
-      MultiplicationTriple[] multiplicationTriples = new MultiplicationTriple[numberOfMultiplications];
+      BeaverTriple[] multiplicationTriples = new BeaverTriple[numberOfMultiplications];
       for (int i = 0; i < numberOfMultiplications; i++) {
-         multiplicationTriples[i] = group.randomMultiplicationTriple();
+         multiplicationTriples[i] = field.randomMultiplicationTriple();
       }
 
       // init all pre processed data
@@ -81,11 +83,11 @@ public class Main {
 
       // create shares for all multiplication triples previously generated
       for (int i = 0; i < numberOfMultiplications; i++) {
-         int[] aShares = group.createShares(multiplicationTriples[i].getA(), NPLAYERS);
-         int[] bShares = group.createShares(multiplicationTriples[i].getB(), NPLAYERS);
-         int[] cShares = group.createShares(multiplicationTriples[i].getC(), NPLAYERS);
+         FieldElement[] aShares = field.createShares(multiplicationTriples[i].getA(), NPLAYERS);
+         FieldElement[] bShares = field.createShares(multiplicationTriples[i].getB(), NPLAYERS);
+         FieldElement[] cShares = field.createShares(multiplicationTriples[i].getC(), NPLAYERS);
          for (int j = 0; j < NPLAYERS; j++) {
-            preProcessedData[j].add(new MultiplicationTriple(aShares[j], bShares[j], cShares[j]));
+            preProcessedData[j].add(new BeaverTriple(aShares[j], bShares[j], cShares[j]));
          }
       }
 
@@ -118,14 +120,12 @@ public class Main {
          players[i].join();
       }
 
-      int count = 0;
+      FieldElement count = new BigIntegerFE(0, MOD);
       for (int i = 0; i < NPLAYERS; i++) {
-         count += sumAll[i];
+         count = count.add(sumAll.get(i));
       }
-      count %= MOD;
-      System.out.println(count);
 
-      System.out.println(System.currentTimeMillis() - start);
-
+      System.out.println("RESULT: " + count.intValue());
+      System.out.println("TOTAL TIME: " + (System.currentTimeMillis() - start));
    }
 }

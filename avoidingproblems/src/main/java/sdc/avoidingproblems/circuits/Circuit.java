@@ -1,6 +1,6 @@
 package sdc.avoidingproblems.circuits;
 
-import static sdc.avoidingproblems.circuits.gate.GateType.MULT;
+import java.util.List;
 
 /**
  *
@@ -9,30 +9,30 @@ import static sdc.avoidingproblems.circuits.gate.GateType.MULT;
  */
 public class Circuit {
 
-   private final CircuitTriple[] triples;
    private final int inputSize;
+   private final List<Gate> gates;
 
-   public Circuit(int inputSize, CircuitTriple... triples) {
-      this.triples = triples.clone();
+   public Circuit(int inputSize, List<Gate> gates) {
+      this.gates = gates;
       this.inputSize = inputSize;
-   }
-
-   public CircuitTriple[] getTriples() {
-      return triples;
-   }
-
-   public int getTriplesCount() {
-      return triples.length;
    }
 
    public int getInputSize() {
       return inputSize;
    }
 
+   public List<Gate> getGates() {
+      return gates;
+   }
+
+   public int getGateCount() {
+      return gates.size();
+   }
+
    public int getMultiplicationGatesCount() {
       int count = 0;
-      for (CircuitTriple ct : triples) {
-         if (ct.getGate().equals(MULT)) {
+      for (Gate gate : gates) {
+         if (gate.getSemantic().equals(GateSemantic.MULT)) {
             count++;
          }
       }
@@ -45,11 +45,11 @@ public class Circuit {
       StringBuilder sb = new StringBuilder();
       int i = inputSize;
       int multiplicationCount = 0;
-      for (CircuitTriple ct : triples) {
-         if(ct.getGate()==MULT){
+      for (Gate gate : gates) {
+         if (gate.getSemantic().equals(GateSemantic.MULT)) {
             sb.append("[").append(multiplicationCount++).append("]");
          }
-         sb.append("\t").append(i++).append(" : ").append(ct.toString()).append("\n");
+         sb.append("\t").append(i++).append(" : ").append(gate.toString()).append("\n");
       }
       return sb.toString();
    }

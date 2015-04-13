@@ -1,6 +1,8 @@
 package sdc.avoidingproblems.circuits;
 
 import java.util.ArrayList;
+import java.util.List;
+import sdc.avoidingproblems.circuits.algebra.BeaverTriple;
 
 /**
  *
@@ -8,26 +10,26 @@ import java.util.ArrayList;
  */
 public class PreProcessedData {
 
-   private final ArrayList<MultiplicationTriple> multiplicationTriples;
+   private final List<BeaverTriple> multiplicationTriples;
 
    public PreProcessedData() {
       this.multiplicationTriples = new ArrayList<>();
    }
 
-   public PreProcessedData(ArrayList<MultiplicationTriple> multiplicationTriples) {
+   public PreProcessedData(List<BeaverTriple> multiplicationTriples) {
       this.multiplicationTriples = multiplicationTriples;
    }
    
-   public void add(MultiplicationTriple triple){
+   public void add(BeaverTriple triple){
       this.multiplicationTriples.add(triple);
    }
 
-   public MultiplicationTriple consume() {
-      MultiplicationTriple mt = null;
+   public BeaverTriple consume() {
+      BeaverTriple triple = null;
       if (multiplicationTriples.size() > 0) {
-         mt = multiplicationTriples.remove(0);
+         triple = multiplicationTriples.remove(0);
       }
 
-      return mt;
+      return triple;
    }
 }
