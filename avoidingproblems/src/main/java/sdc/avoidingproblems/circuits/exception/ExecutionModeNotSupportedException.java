@@ -6,7 +6,7 @@ package sdc.avoidingproblems.circuits.exception;
  */
 public class ExecutionModeNotSupportedException extends Exception {
 
-   public ExecutionModeNotSupportedException() { // not supported instead of unknown
+   public ExecutionModeNotSupportedException() {
       super();
    }
    
