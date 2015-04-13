@@ -1,7 +1,5 @@
 package sdc.avoidingproblems.circuits.algebra;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.security.SecureRandom;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,7 +28,6 @@ public class Field {
       return result;
    }
 
-   // TO-DO : verify this
    public ValueAndMAC[] createShares(ValueAndMAC vam, int NSHARES) {
       FieldElement[] valueShares = createShares(vam.getValue(), NSHARES);
       FieldElement[] MACShares = createShares(vam.getMAC(), NSHARES);

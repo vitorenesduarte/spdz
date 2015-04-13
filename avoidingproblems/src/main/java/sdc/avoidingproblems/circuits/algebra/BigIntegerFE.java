@@ -43,12 +43,6 @@ public class BigIntegerFE implements FieldElement {
    }
 
    @Override
-   public FieldElement getInstance(int value, int MOD) {
-      BigIntegerFE instance = new BigIntegerFE(value, MOD);
-      return instance;
-   }
-
-   @Override
    public String toString() {
       return "" + intValue();
    }

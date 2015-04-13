@@ -39,12 +39,13 @@ public class DsAndEs {
       e = e.add(new BigIntegerFE(x, MOD));
    }
 
+   public void incrNumberOfShares() {
+      numberOfShares++;
+   }
+
    @Override
    public String toString() {
       return "{" + d + "," + e + "}";
    }
 
-   public void incrNumberOfShares() {
-      numberOfShares++;
-   }
 }

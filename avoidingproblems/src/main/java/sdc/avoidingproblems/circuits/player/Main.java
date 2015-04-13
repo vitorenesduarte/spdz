@@ -9,7 +9,6 @@ import sdc.avoidingproblems.circuits.PreProcessedData;
 import sdc.avoidingproblems.circuits.algebra.BeaverTriple;
 import sdc.avoidingproblems.circuits.algebra.BigIntegerFE;
 import sdc.avoidingproblems.circuits.algebra.FieldElement;
-import sdc.avoidingproblems.circuits.algebra.Util;
 import sdc.avoidingproblems.circuits.algebra.ValueAndMAC;
 import sdc.avoidingproblems.circuits.exception.ClassNotSupportedException;
 import sdc.avoidingproblems.circuits.exception.ExecutionModeNotSupportedException;
@@ -24,8 +23,8 @@ public class Main {
 
    public static void main(String[] args) throws ExecutionModeNotSupportedException, InterruptedException, ClassNotSupportedException, InvalidParamException {
       int MOD = 41;
-      int NINPUTS = 100000;
-      int NPLAYERS = 3;
+      int NINPUTS = 2;
+      int NPLAYERS = 2;
       Field field = new Field(MOD);
       Class<?> clazz = BigIntegerFE.class;
       FieldElement fixedMACKey = field.random(clazz);
@@ -48,9 +47,11 @@ public class Main {
       }
 
       System.out.println("INPUTS: " + inputs.toString());
+      System.out.println("FIXED MAC KEY: " + fixedMACKey);
       System.out.println("MOD " + MOD);
       System.out.println("SINGLE-PARTY:");
-      System.out.println("RESULT: " + circuit.eval(inputs));
+      FieldElement singePartyEvalResult = circuit.eval(inputs);
+      System.out.println("RESULT: (" + singePartyEvalResult + ", " + singePartyEvalResult.mult(fixedMACKey) + ")");
 
       System.out.println("MULTI-PARTY:");
       // create shares for all the circuit's inputs
@@ -117,12 +118,12 @@ public class Main {
          players[i].join();
       }
 
-      FieldElement count = Util.getFieldElementInstance(clazz, 0, MOD);
-      for (int i = 0; i < NPLAYERS; i++) {
-         count = count.add(sumAll.get(i).getValue());
+      ValueAndMAC all = sumAll.get(0);
+      for (int i = 1; i < NPLAYERS; i++) {
+         all = all.add(sumAll.get(i));
       }
 
-      System.out.println("RESULT: " + count.intValue());
+      System.out.println("RESULT: (" + all.getValue() + ", " + all.getMAC() + ")");
       System.out.println("TOTAL TIME: " + (System.currentTimeMillis() - start));
    }
 }

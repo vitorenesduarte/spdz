@@ -17,8 +17,6 @@ public interface FieldElement {
 
    FieldElement mult(FieldElement fe);
    
-   FieldElement getInstance(int value, int MOD);
-
    @Override
    public String toString();
 
