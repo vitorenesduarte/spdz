@@ -23,7 +23,10 @@ public class Field {
    }
 
    public FieldElement random(Class<?> clazz) throws ClassNotSupportedException {
-      int value = random.nextInt(MOD);
+      int value = 0;
+      while (value == 0) { // does this compromises anything?
+         value = random.nextInt(MOD);
+      }
       FieldElement result = Util.getFieldElementInstance(clazz, value, MOD);
       return result;
    }

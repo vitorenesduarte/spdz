@@ -23,8 +23,8 @@ public class Main {
 
    public static void main(String[] args) throws ExecutionModeNotSupportedException, InterruptedException, ClassNotSupportedException, InvalidParamException {
       int MOD = 41;
-      int NINPUTS = 2;
-      int NPLAYERS = 2;
+      int NINPUTS = 10000;
+      int NPLAYERS = 3;
       Field field = new Field(MOD);
       Class<?> clazz = BigIntegerFE.class;
       FieldElement fixedMACKey = field.random(clazz);
@@ -51,7 +51,7 @@ public class Main {
       System.out.println("MOD " + MOD);
       System.out.println("SINGLE-PARTY:");
       FieldElement singePartyEvalResult = circuit.eval(inputs);
-      System.out.println("RESULT: (" + singePartyEvalResult + ", " + singePartyEvalResult.mult(fixedMACKey) + ")");
+      System.out.println("RESULT: " + new ValueAndMAC(singePartyEvalResult,singePartyEvalResult.mult(fixedMACKey)));
 
       System.out.println("MULTI-PARTY:");
       // create shares for all the circuit's inputs
@@ -62,7 +62,8 @@ public class Main {
       }
 
       for (int i = 0; i < NINPUTS; i++) {
-         ValueAndMAC[] shares = field.createShares(new ValueAndMAC(inputs.get(i), fixedMACKey), NPLAYERS);
+         ValueAndMAC vam = new ValueAndMAC(inputs.get(i), inputs.get(i).mult(fixedMACKey));
+         ValueAndMAC[] shares = field.createShares(vam, NPLAYERS);
          for (int j = 0; j < NPLAYERS; j++) {
             inputShares[j].add(shares[j]);
          }
@@ -123,7 +124,7 @@ public class Main {
          all = all.add(sumAll.get(i));
       }
 
-      System.out.println("RESULT: (" + all.getValue() + ", " + all.getMAC() + ")");
+      System.out.println("RESULT: " + all);
       System.out.println("TOTAL TIME: " + (System.currentTimeMillis() - start));
    }
 }
