@@ -1,4 +1,4 @@
-package sdc.avoidingproblems.circuits.player;
+package sdc.avoidingproblems.circuits.algebra;
 
 /**
  *
@@ -6,20 +6,22 @@ package sdc.avoidingproblems.circuits.player;
  */
 public class Share {
 
-   private int d, e;
+   private FieldElement d, e;
+   private final int MOD;
    private int numberOfShares;
 
-   public Share(int d, int e) {
-      this.d = d;
-      this.e = e;
+   public Share(int d, int e, int MOD) {
+      this.MOD = MOD;
+      this.d = new BigIntegerFE(d, MOD);
+      this.e = new BigIntegerFE(e, MOD);
       this.numberOfShares = 1;
    }
 
-   public int getD() {
+   public FieldElement getD() {
       return d;
    }
 
-   public int getE() {
+   public FieldElement getE() {
       return e;
    }
 
@@ -28,11 +30,11 @@ public class Share {
    }
 
    public void addToD(int x) {
-      d += x;
+      d = d.add(new BigIntegerFE(x, MOD));
    }
 
    public void addToE(int x) {
-      e += x;
+      e = e.add(new BigIntegerFE(x, MOD));
    }
 
    @Override

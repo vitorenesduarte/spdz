@@ -1,4 +1,4 @@
-package sdc.avoidingproblems.circuits;
+package sdc.avoidingproblems.circuits.algebra;
 
 import java.security.SecureRandom;
 
@@ -7,42 +7,37 @@ import java.security.SecureRandom;
  * @author Vitor Enes (vitorenesduarte ~at~ gmail ~dot~ com)
  * @author Paulo Silva
  */
-public class Group {
+public class Field { // adapt this to return other implementations of FieldElement
 
    private final int MOD;
    private final SecureRandom random;
 
-   public Group(int MOD) {
+   public Field(int MOD) {
       this.MOD = MOD;
       this.random = new SecureRandom();
    }
 
-   public int random() {
-      return random.nextInt(MOD);
+   public BigIntegerFE random() {
+      int value = random.nextInt(MOD);
+      return new BigIntegerFE(value, MOD);
    }
 
-   public int[] createShares(int x, int NSHARES) {
-      int[] shares = new int[NSHARES];
+   public FieldElement[] createShares(FieldElement x, int NSHARES) {
+      FieldElement[] shares = new FieldElement[NSHARES];
       shares[NSHARES - 1] = x;
       for (int i = 0; i < NSHARES - 1; i++) {
          shares[i] = random();
-         shares[NSHARES - 1] -= shares[i];
+         shares[NSHARES - 1] = shares[NSHARES - 1].sub(shares[i]);
       }
-
-      shares[NSHARES - 1] %= MOD;
-      if (shares[NSHARES - 1] < 0) {
-         shares[NSHARES - 1] += MOD;
-      }
-
       return shares;
    }
 
-   public MultiplicationTriple randomMultiplicationTriple() {
-      int a = random();
-      int b = random();
-      int c = (a * b) % MOD;
+   public BeaverTriple randomMultiplicationTriple() {
+      FieldElement a = random();
+      FieldElement b = random();
+      FieldElement c = new BigIntegerFE(a.intValue(), MOD).mult(b);
 
-      MultiplicationTriple mt = new MultiplicationTriple(a, b, c);
-      return mt;
+      BeaverTriple triple = new BeaverTriple(a, b, c);
+      return triple;
    }
 }
