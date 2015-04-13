@@ -2,7 +2,6 @@ package sdc.avoidingproblems.circuits.player;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 import sdc.avoidingproblems.circuits.Circuit;
 import sdc.avoidingproblems.circuits.CircuitGenerator;
 import sdc.avoidingproblems.circuits.ExecutionMode;
@@ -11,6 +10,7 @@ import sdc.avoidingproblems.circuits.PreProcessedData;
 import sdc.avoidingproblems.circuits.algebra.BeaverTriple;
 import sdc.avoidingproblems.circuits.algebra.BigIntegerFE;
 import sdc.avoidingproblems.circuits.algebra.FieldElement;
+import sdc.avoidingproblems.circuits.exception.ClassNotSupportedException;
 import sdc.avoidingproblems.circuits.exception.ExecutionModeNotSupportedException;
 
 /**
@@ -20,11 +20,12 @@ import sdc.avoidingproblems.circuits.exception.ExecutionModeNotSupportedExceptio
  */
 public class Main {
 
-   public static void main(String[] args) throws ExecutionModeNotSupportedException, InterruptedException {
+   public static void main(String[] args) throws ExecutionModeNotSupportedException, InterruptedException, ClassNotSupportedException {
       int MOD = 41;
       int NINPUTS = 10;
       int NPLAYERS = 3;
       Field field = new Field(MOD);
+      Class<?> clazz = BigIntegerFE.class;
 
       List<FieldElement> sumAll = new ArrayList(NPLAYERS);
 
@@ -39,7 +40,7 @@ public class Main {
       // generate random inputs for the circuit
       List<FieldElement> inputs = new ArrayList(NINPUTS);
       for (int i = 0; i < NINPUTS; i++) {
-         inputs.add(field.random());
+         inputs.add(field.random(clazz));
       }
 
       System.out.println("INPUTS: " + inputs.toString());
@@ -72,7 +73,7 @@ public class Main {
       int numberOfMultiplications = circuit.getMultiplicationGatesCount();
       BeaverTriple[] multiplicationTriples = new BeaverTriple[numberOfMultiplications];
       for (int i = 0; i < numberOfMultiplications; i++) {
-         multiplicationTriples[i] = field.randomMultiplicationTriple();
+         multiplicationTriples[i] = field.randomMultiplicationTriple(clazz);
       }
 
       // init all pre processed data

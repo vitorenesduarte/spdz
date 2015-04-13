@@ -8,10 +8,10 @@ import java.math.BigInteger;
  */
 public class BigIntegerFE implements FieldElement {
 
-   private BigInteger elem;
+   private final BigInteger elem;
    private final BigInteger MOD;
 
-   public BigIntegerFE(int value, int MOD) {
+   public BigIntegerFE(Integer value, Integer MOD) {
       this.elem = BigInteger.valueOf(value);
       this.MOD = BigInteger.valueOf(MOD);
    }
