@@ -1,4 +1,3 @@
-
 package sdc.avoidingproblems.circuits.jung;
 
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
@@ -16,6 +15,7 @@ import java.util.List;
 import javax.swing.JFrame;
 import org.apache.commons.collections15.Transformer;
 import sdc.avoidingproblems.circuits.Circuit;
+import sdc.avoidingproblems.circuits.CircuitGenerator;
 import sdc.avoidingproblems.circuits.Gate;
 
 /**
@@ -25,6 +25,12 @@ import sdc.avoidingproblems.circuits.Gate;
 public class Jung {
 
    private static final String SEP = "::";
+
+   public static void main(String[] args) {
+      CircuitGenerator generator = new CircuitGenerator();
+      Circuit circuit = generator.generate(10);
+      preview(circuit);
+   }
 
    public static void preview(Circuit circuit) {
       Graph<String, String> graph = new DirectedSparseGraph<>();
@@ -39,19 +45,26 @@ public class Jung {
       for (int i = 0; i < circuit.getGateCount(); i++) {
          Gate gate = gates.get(i);
          List<Integer> inputEdges = gate.getInputEdges();
-         String gateName = "g" + SEP + i + numberOfInputs;
+         String gateName = getGateName(gate, i + numberOfInputs);
+         System.out.println(gateName);
          graph.addVertex(gateName);
          for (Integer input : inputEdges) {
+            String edgeName = "e" + SEP + input;
             if (input >= numberOfInputs) { // the dependency is another gate
-               graph.addEdge("e" + SEP + input, "g" + SEP + input, gateName);
+               Gate dependencyGate = gates.get(input - numberOfInputs);
+               graph.addEdge(edgeName, getGateName(dependencyGate, input), gateName);
             } else { // the dependency is an input
-               graph.addEdge("e" + SEP + input, "i" + SEP + input, gateName);
+               graph.addEdge(edgeName, "i" + SEP + input, gateName);
             }
          }
 
       }
 
       show(graph);
+   }
+
+   private static String getGateName(Gate gate, int index) {
+      return "g" + gate.getSemantic() + SEP + index;
    }
 
    private static void show(Graph graph) {
@@ -73,7 +86,14 @@ public class Jung {
       Transformer<String, String> labelTransformer = new Transformer<String, String>() {
          @Override
          public String transform(String s) {
-            return s.split("::")[1];
+            String[] parts = s.split(SEP);
+            if (parts[0].startsWith("g")) {
+               return parts[0].substring(1);
+            } else if (parts[0].startsWith("e")) {
+               return "";
+            } else {
+               return parts[1];
+            }
          }
       };
       Transformer<String, Shape> vertexSize = new Transformer<String, Shape>() {
