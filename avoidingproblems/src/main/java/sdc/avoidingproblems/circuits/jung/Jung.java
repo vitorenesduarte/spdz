@@ -28,7 +28,7 @@ public class Jung {
 
    public static void main(String[] args) {
       CircuitGenerator generator = new CircuitGenerator();
-      Circuit circuit = generator.generate(10);
+      Circuit circuit = generator.generate(4);
       preview(circuit);
    }
 
@@ -46,7 +46,6 @@ public class Jung {
          Gate gate = gates.get(i);
          List<Integer> inputEdges = gate.getInputEdges();
          String gateName = getGateName(gate, i + numberOfInputs);
-         System.out.println(gateName);
          graph.addVertex(gateName);
          for (Integer input : inputEdges) {
             String edgeName = "e" + SEP + input;
@@ -57,7 +56,12 @@ public class Jung {
                graph.addEdge(edgeName, "i" + SEP + input, gateName);
             }
          }
-
+         if (i == circuit.getGateCount() - 1) { // the last gate
+            String outputName = "gOUTPUT" + SEP;
+            String edgeOutputName = "e" + SEP;
+            graph.addVertex(outputName);
+            graph.addEdge(edgeOutputName, gateName, outputName);
+         }
       }
 
       show(graph);
