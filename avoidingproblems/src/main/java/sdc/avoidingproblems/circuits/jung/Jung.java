@@ -12,6 +12,7 @@ import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,35 +29,34 @@ import sdc.avoidingproblems.circuits.Gate;
 public class Jung {
 
    private static final String SEP = "::";
-   private static final int WIDTH = 1366;
-   private static final int HEIGHT = 668;
+   private static final int WIDTH = 1300;
+   private static final int HEIGHT = 700;
    private static final int MARGIN_X = 30;
    private static final int MARGIN_Y = 30;
-   private static Map<String, Point2D> locations;
+   private static Map<String, Position> positions;
+   private static Map<Integer, List<Position>> positionsPerLevel;
+   private static int MAX_LEVEL = 0;
 
    public static void main(String[] args) {
       CircuitGenerator generator = new CircuitGenerator();
-      Circuit circuit = generator.generate(4);
+      Circuit circuit = generator.generate(8);
       preview(circuit);
    }
 
    public static void preview(Circuit circuit) {
-      locations = new HashMap();
+      positions = new HashMap();
       int numberOfInputs = circuit.getInputSize();
+
       Graph<String, String> graph = new DirectedSparseGraph<>();
 
-      int numberOfVerticesInLevel = numberOfInputs;
-
-      float x = (WIDTH - 2 * MARGIN_X) / (numberOfVerticesInLevel - 1);
+      double x = (WIDTH - 2 * MARGIN_X) / (numberOfInputs - 1);
       for (int i = 0; i < numberOfInputs; i++) {
-         String inputName = "i" + SEP + i;
+         String inputName = getInputName(i);
          graph.addVertex(inputName);
-         locations.put(inputName, new Point2D.Double(x * i + MARGIN_X, 30));
+         positions.put(inputName, new Position(x * i + MARGIN_X, MARGIN_Y, true));
       }
 
-      System.out.println("i:" + numberOfInputs);
-      System.out.println("g:" + circuit.getGateCount());
-      System.out.println(calculateNumberOfLevels(numberOfInputs, circuit.getGateCount()));
+      initPositionsPerLevel(numberOfInputs - 1, numberOfInputs, x);
 
       List<Gate> gates = circuit.getGates();
       for (int i = 0; i < circuit.getGateCount(); i++) {
@@ -64,48 +64,136 @@ public class Jung {
          List<Integer> inputEdges = gate.getInputEdges();
          String gateName = getGateName(gate, i + numberOfInputs);
          graph.addVertex(gateName);
-         locations.put(gateName, new Point2D.Double(15 * (i + 1), 50));
 
+         List<String> dependenciesName = new ArrayList(inputEdges.size());
          for (Integer input : inputEdges) {
-            String edgeName = "e" + SEP + input;
+            String edgeName = getEdgeName(input);
+            String dependencyName;
             if (input >= numberOfInputs) { // the dependency is another gate
                Gate dependencyGate = gates.get(input - numberOfInputs);
-               graph.addEdge(edgeName, getGateName(dependencyGate, input), gateName);
+               dependencyName = getGateName(dependencyGate, input);
             } else { // the dependency is an input
-               graph.addEdge(edgeName, "i" + SEP + input, gateName);
+               dependencyName = getInputName(input);
             }
-         }
-         if (i == circuit.getGateCount() - 1) { // the last gate
-            String outputName = "gOUTPUT" + SEP;
-            String edgeOutputName = "e" + SEP;
-            locations.put(outputName, new Point2D.Double(700, 500));
 
-            graph.addVertex(outputName);
-            graph.addEdge(edgeOutputName, gateName, outputName);
+            dependenciesName.add(dependencyName);
+            graph.addEdge(edgeName, dependencyName, gateName);
+         }
+
+         Position gatePosition = calculateGatePostion(dependenciesName);
+         gatePosition.setOccupied(true);
+         positions.put(gateName, gatePosition);
+
+      }
+
+      for (String label : positions.keySet()) {
+         if (label.startsWith("g")) {
+            Position p = positions.get(label);
+            p.setY((HEIGHT + 2 * MARGIN_Y) / (MAX_LEVEL + 1) * p.getLevel());
          }
       }
 
-      show(graph, locations);
+      show(graph, positions);
+   }
+
+   private static void initPositionsPerLevel(int numberOfLevels, int numberOfInputs, double xOffset) {
+      positionsPerLevel = new HashMap();
+      for (int level = 1; level <= numberOfLevels; level++) {
+         List<Position> positionsList = new ArrayList();
+         double startX = MARGIN_X + xOffset + (xOffset / 2) * level;
+         for (int i = 0; i < numberOfInputs - level; i++) {
+            positionsList.add(new Position(startX + xOffset * i, 0, false));
+         }
+         positionsPerLevel.put(level, positionsList);
+      }
+
+      System.out.println(positionsPerLevel);
+   }
+
+   private static Position calculateGatePostion(List<String> dependenciesName) {
+      int gateLevel = calculateGateLevel(dependenciesName);
+      double idealX = calculateIdealX(dependenciesName);
+
+      System.out.println("gate level : " + gateLevel);
+      System.out.println("ideal x : " + idealX);
+      List<Position> levelPositions = positionsPerLevel.get(gateLevel);
+      System.out.println("levelPositions  : " + levelPositions);
+      List<Position> freePositions = new ArrayList();
+      for (Position p : levelPositions) {
+         if (!p.isOccupied()) {
+            freePositions.add(p);
+         }
+      }
+      System.out.println("free positions : " + freePositions);
+
+      return findBestPosition(idealX, freePositions, gateLevel);
+   }
+
+   private static int calculateGateLevel(List<String> dependenciesName) {
+      int max = 0;
+      for (String dependency : dependenciesName) {
+         int dependencyPositionLevel = positions.get(dependency).getLevel();
+         if (dependencyPositionLevel > max) {
+            max = dependencyPositionLevel;
+         }
+      }
+
+      max++;
+      if (MAX_LEVEL < max) {
+         MAX_LEVEL = max;
+      }
+      return max;
+   }
+
+   /**
+    * This method only works for gates with 2 inputs
+    */
+   private static double calculateIdealX(List<String> dependenciesName) {
+      double dependencyOneX = positions.get(dependenciesName.get(0)).getX();
+      double dependencyTwoX = positions.get(dependenciesName.get(1)).getX();
+      double idealX;
+
+      if (dependencyOneX < dependencyTwoX) {
+         idealX = dependencyOneX + (dependencyTwoX - dependencyOneX) / 2;
+      } else {
+         idealX = dependencyTwoX + (dependencyOneX - dependencyTwoX) / 2;
+      }
+
+      return idealX;
+   }
+
+   private static Position findBestPosition(double idealX, List<Position> freePositions, int gateLevel) {
+      double smallerDifference = Math.abs(freePositions.get(0).getX() - idealX);
+      Position best = freePositions.get(0);
+      for (int i = 1; i < freePositions.size(); i++) {
+         double newDifference = Math.abs(freePositions.get(i).getX() - idealX);
+         if (newDifference < smallerDifference) {
+            smallerDifference = newDifference;
+            best = freePositions.get(i);
+         }
+      }
+      best.setLevel(gateLevel);
+      return best;
+   }
+
+   private static String getInputName(int index) {
+      return "i" + SEP + index;
    }
 
    private static String getGateName(Gate gate, int index) {
       return "g" + gate.getSemantic() + SEP + index;
    }
 
-   private static int calculateNumberOfLevels(int numberOfInputs, int numberOfGates) {
-      int numberOfLevels = 1;
-      while ((numberOfGates = numberOfGates - numberOfInputs) > 0) {
-         numberOfLevels++;
-      }
-
-      return numberOfLevels;
+   private static String getEdgeName(int index) {
+      return "e" + SEP + index;
    }
 
-   private static void show(Graph graph, final Map<String, Point2D> locations) {
+   private static void show(Graph graph, final Map<String, Position> positions) {
       Transformer<String, Point2D> locationTransformer = new Transformer<String, Point2D>() {
          @Override
          public Point2D transform(String vertex) {
-            return locations.get(vertex);
+            Position p = positions.get(vertex);
+            return new Point2D.Double(p.getX(), p.getY());
          }
       };
 
@@ -150,7 +238,6 @@ public class Jung {
       vv.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.CNTR);
       vv.getRenderContext().setLabelOffset(20);
 
-//other operations
       JFrame frame = new JFrame("Circuit");
       frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
       frame.getContentPane().add(vv);
