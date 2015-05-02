@@ -106,25 +106,19 @@ public class Jung {
          }
          positionsPerLevel.put(level, positionsList);
       }
-
-      System.out.println(positionsPerLevel);
    }
 
    private static Position calculateGatePostion(List<String> dependenciesName) {
       int gateLevel = calculateGateLevel(dependenciesName);
       double idealX = calculateIdealX(dependenciesName);
 
-      System.out.println("gate level : " + gateLevel);
-      System.out.println("ideal x : " + idealX);
       List<Position> levelPositions = positionsPerLevel.get(gateLevel);
-      System.out.println("levelPositions  : " + levelPositions);
       List<Position> freePositions = new ArrayList();
       for (Position p : levelPositions) {
          if (!p.isOccupied()) {
             freePositions.add(p);
          }
       }
-      System.out.println("free positions : " + freePositions);
 
       return findBestPosition(idealX, freePositions, gateLevel);
    }
