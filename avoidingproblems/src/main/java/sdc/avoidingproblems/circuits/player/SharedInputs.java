@@ -2,7 +2,7 @@ package sdc.avoidingproblems.circuits.player;
 
 import java.util.ArrayList;
 import java.util.List;
-import sdc.avoidingproblems.circuits.algebra.ValueAndMAC;
+import sdc.avoidingproblems.circuits.algebra.mac.ValueAndMAC;
 
 /**
  *

@@ -1,5 +1,7 @@
 package sdc.avoidingproblems.circuits.algebra;
 
+import sdc.avoidingproblems.circuits.algebra.mac.ValueAndMAC;
+
 /**
  *
  * @author Vitor Enes (vitorenesduarte ~at~ gmail ~dot~ com)

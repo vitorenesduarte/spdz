@@ -1,5 +1,6 @@
 package sdc.avoidingproblems.circuits.algebra;
 
+import sdc.avoidingproblems.circuits.algebra.mac.ValueAndMAC;
 import java.security.SecureRandom;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -43,7 +44,7 @@ public class Field {
       return shares;
    }
 
-   private FieldElement[] createShares(FieldElement x, int NSHARES) {
+   public FieldElement[] createShares(FieldElement x, int NSHARES) {
       FieldElement[] shares = new FieldElement[NSHARES];
       shares[NSHARES - 1] = x;
       for (int i = 0; i < NSHARES - 1; i++) {

@@ -1,4 +1,6 @@
-package sdc.avoidingproblems.circuits.algebra;
+package sdc.avoidingproblems.circuits.algebra.mac;
+
+import sdc.avoidingproblems.circuits.algebra.FieldElement;
 
 /**
  *

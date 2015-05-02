@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import static sdc.avoidingproblems.circuits.ExecutionMode.LOCAL;
 import sdc.avoidingproblems.circuits.algebra.FieldElement;
-import sdc.avoidingproblems.circuits.algebra.ValueAndMAC;
+import sdc.avoidingproblems.circuits.algebra.mac.ValueAndMAC;
 import sdc.avoidingproblems.circuits.exception.ExecutionModeNotSupportedException;
 import sdc.avoidingproblems.circuits.exception.InvalidParamException;
 

@@ -1,5 +1,6 @@
 package sdc.avoidingproblems.circuits.algebra;
 
+import sdc.avoidingproblems.circuits.algebra.mac.ValueAndMAC;
 import sdc.avoidingproblems.circuits.ExecutionMode;
 import sdc.avoidingproblems.circuits.exception.ExecutionModeNotSupportedException;
 import sdc.avoidingproblems.circuits.exception.InvalidParamException;

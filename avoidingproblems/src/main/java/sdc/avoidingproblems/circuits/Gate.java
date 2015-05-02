@@ -2,7 +2,7 @@ package sdc.avoidingproblems.circuits;
 
 import java.util.List;
 import sdc.avoidingproblems.circuits.algebra.FieldElement;
-import sdc.avoidingproblems.circuits.algebra.ValueAndMAC;
+import sdc.avoidingproblems.circuits.algebra.mac.ValueAndMAC;
 import sdc.avoidingproblems.circuits.exception.InvalidParamException;
 import sdc.avoidingproblems.circuits.exception.ExecutionModeNotSupportedException;
 

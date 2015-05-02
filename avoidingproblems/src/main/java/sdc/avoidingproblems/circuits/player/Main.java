@@ -9,7 +9,7 @@ import sdc.avoidingproblems.circuits.PreProcessedData;
 import sdc.avoidingproblems.circuits.algebra.BeaverTriple;
 import sdc.avoidingproblems.circuits.algebra.BigIntegerFE;
 import sdc.avoidingproblems.circuits.algebra.FieldElement;
-import sdc.avoidingproblems.circuits.algebra.ValueAndMAC;
+import sdc.avoidingproblems.circuits.algebra.mac.ValueAndMAC;
 import sdc.avoidingproblems.circuits.exception.ClassNotSupportedException;
 import sdc.avoidingproblems.circuits.exception.ExecutionModeNotSupportedException;
 import sdc.avoidingproblems.circuits.exception.InvalidParamException;

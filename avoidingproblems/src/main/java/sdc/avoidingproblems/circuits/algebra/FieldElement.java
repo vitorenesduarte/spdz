@@ -9,15 +9,19 @@ package sdc.avoidingproblems.circuits.algebra;
  */
 public interface FieldElement {
 
-   int intValue();
+    int intValue();
 
-   FieldElement add(FieldElement fe);
+    FieldElement add(FieldElement fe);
 
-   FieldElement sub(FieldElement fe);
+    FieldElement sub(FieldElement fe);
 
-   FieldElement mult(FieldElement fe);
-   
-   @Override
-   public String toString();
+    FieldElement mult(FieldElement fe);
+
+    FieldElement pow(Integer power);
+
+    int compare(FieldElement fe);
+
+    @Override
+    public String toString();
 
 }

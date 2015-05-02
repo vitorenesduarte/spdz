@@ -26,7 +26,7 @@ import static sdc.avoidingproblems.circuits.GateSemantic.PLUS;
 import sdc.avoidingproblems.circuits.PreProcessedData;
 import sdc.avoidingproblems.circuits.algebra.BeaverTriple;
 import sdc.avoidingproblems.circuits.algebra.Function;
-import sdc.avoidingproblems.circuits.algebra.ValueAndMAC;
+import sdc.avoidingproblems.circuits.algebra.mac.ValueAndMAC;
 import sdc.avoidingproblems.circuits.exception.ClassNotSupportedException;
 import sdc.avoidingproblems.circuits.exception.InvalidParamException;
 import sdc.avoidingproblems.circuits.exception.OperationNotSupportedException;
