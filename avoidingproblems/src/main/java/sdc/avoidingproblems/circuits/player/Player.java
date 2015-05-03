@@ -26,7 +26,7 @@ import static sdc.avoidingproblems.circuits.GateSemantic.PLUS;
 import sdc.avoidingproblems.circuits.PreProcessedData;
 import sdc.avoidingproblems.circuits.algebra.BeaverTriple;
 import sdc.avoidingproblems.circuits.algebra.Function;
-import sdc.avoidingproblems.circuits.algebra.mac.ValueAndMAC;
+import sdc.avoidingproblems.circuits.algebra.mac.SimpleRepresentation;
 import sdc.avoidingproblems.circuits.exception.ClassNotSupportedException;
 import sdc.avoidingproblems.circuits.exception.InvalidParamException;
 import sdc.avoidingproblems.circuits.exception.OperationNotSupportedException;
@@ -45,14 +45,14 @@ public class Player extends Thread {
 
    private final PlayerID playerID;
    private Circuit circuit;
-   private List<ValueAndMAC> sharedInputs;
+   private List<SimpleRepresentation> sharedInputs;
    private Integer MOD;
    private List<PlayerID> players;
    private PreProcessedData preProcessedData;
    private final int UID;
-   private final List<ValueAndMAC> sumAll;
+   private final List<SimpleRepresentation> sumAll;
 
-   public Player(int UID, String host, int port, List<ValueAndMAC> sumAll) {
+   public Player(int UID, String host, int port, List<SimpleRepresentation> sumAll) {
       this.UID = UID;
       this.playerID = new PlayerID("UID" + UID, host, port);
       this.sumAll = sumAll;
@@ -66,7 +66,7 @@ public class Player extends Thread {
       this.circuit = circuit;
    }
 
-   public void setInputs(List<ValueAndMAC> sharedInputs) {
+   public void setInputs(List<SimpleRepresentation> sharedInputs) {
       this.sharedInputs = sharedInputs;
    }
 
@@ -93,16 +93,16 @@ public class Player extends Thread {
          Thread.sleep(1000);
 
          List<Gate> gates = circuit.getGates();
-         List<ValueAndMAC> edgesValues = initEdgesValues();
+         List<SimpleRepresentation> edgesValues = initEdgesValues();
 
          for (Gate gate : gates) {
             List<Integer> inputEdges = gate.getInputEdges();
-            ValueAndMAC[] params = new ValueAndMAC[inputEdges.size()];
+            SimpleRepresentation[] params = new SimpleRepresentation[inputEdges.size()];
             for (int j = 0; j < inputEdges.size(); j++) {
                params[j] = edgesValues.get(inputEdges.get(j));
             }
 
-            ValueAndMAC result;
+            SimpleRepresentation result;
             GateSemantic semantic = gate.getSemantic();
 
             switch (semantic) {
@@ -118,7 +118,7 @@ public class Player extends Thread {
             edgesValues.add(result);
          }
 
-         ValueAndMAC result  = edgesValues.get(edgesValues.size() - 1);
+         SimpleRepresentation result  = edgesValues.get(edgesValues.size() - 1);
          sumAll.add(result);
       } catch (InvalidParamException | InvalidPlayersException | InterruptedException | ExecutionModeNotSupportedException | OperationNotSupportedException ex) {
          logger.log(Level.SEVERE, null, ex);
@@ -157,17 +157,17 @@ public class Player extends Thread {
       }
    }
 
-   private List<ValueAndMAC> initEdgesValues() {
-      List<ValueAndMAC> edgesValues = new ArrayList(sharedInputs.size() + circuit.getGateCount());
-      for (ValueAndMAC vam : sharedInputs) {
+   private List<SimpleRepresentation> initEdgesValues() {
+      List<SimpleRepresentation> edgesValues = new ArrayList(sharedInputs.size() + circuit.getGateCount());
+      for (SimpleRepresentation vam : sharedInputs) {
          edgesValues.add(vam);
       }
       return edgesValues;
    }
 
-   private ValueAndMAC evalDistributedMult(ValueAndMAC x, ValueAndMAC y, BeaverTriple triple, int countDistributedMultiplications) throws InterruptedException, InvalidParamException, ExecutionModeNotSupportedException {
-      ValueAndMAC dShared = x.sub(triple.getA());
-      ValueAndMAC eShared = y.sub(triple.getB());
+   private SimpleRepresentation evalDistributedMult(SimpleRepresentation x, SimpleRepresentation y, BeaverTriple triple, int countDistributedMultiplications) throws InterruptedException, InvalidParamException, ExecutionModeNotSupportedException {
+      SimpleRepresentation dShared = x.sub(triple.getA());
+      SimpleRepresentation eShared = y.sub(triple.getB());
 
       String message = countDistributedMultiplications + MESSAGE_SEPARATOR
               + playerID.getUID() + MESSAGE_SEPARATOR
@@ -183,7 +183,7 @@ public class Player extends Thread {
       readyShare.addToE(eShared.getValue().intValue());
 
       Function f = GateSemantic.getFunction(MULT);
-      ValueAndMAC result = f.apply(DISTRIBUTED, triple, readyShare.getD(), readyShare.getE(), dShared);
+      SimpleRepresentation result = f.apply(DISTRIBUTED, triple, readyShare.getD(), readyShare.getE(), dShared);
       return result;
    }
 

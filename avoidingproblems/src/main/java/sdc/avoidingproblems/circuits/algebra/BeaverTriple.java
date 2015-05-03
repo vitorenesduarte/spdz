@@ -1,6 +1,6 @@
 package sdc.avoidingproblems.circuits.algebra;
 
-import sdc.avoidingproblems.circuits.algebra.mac.ValueAndMAC;
+import sdc.avoidingproblems.circuits.algebra.mac.SimpleRepresentation;
 
 /**
  *
@@ -8,23 +8,23 @@ import sdc.avoidingproblems.circuits.algebra.mac.ValueAndMAC;
  */
 public class BeaverTriple {
 
-   private final ValueAndMAC a, b, c;
+   private final SimpleRepresentation a, b, c;
 
-   public BeaverTriple(ValueAndMAC a, ValueAndMAC b, ValueAndMAC c) {
+   public BeaverTriple(SimpleRepresentation a, SimpleRepresentation b, SimpleRepresentation c) {
       this.a = a;
       this.b = b;
       this.c = c;
    }
 
-   public ValueAndMAC getA() {
+   public SimpleRepresentation getA() {
       return a;
    }
 
-   public ValueAndMAC getB() {
+   public SimpleRepresentation getB() {
       return b;
    }
 
-   public ValueAndMAC getC() {
+   public SimpleRepresentation getC() {
       return c;
    }
 

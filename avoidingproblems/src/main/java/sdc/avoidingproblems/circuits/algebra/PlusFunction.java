@@ -1,6 +1,6 @@
 package sdc.avoidingproblems.circuits.algebra;
 
-import sdc.avoidingproblems.circuits.algebra.mac.ValueAndMAC;
+import sdc.avoidingproblems.circuits.algebra.mac.SimpleRepresentation;
 import sdc.avoidingproblems.circuits.ExecutionMode;
 import sdc.avoidingproblems.circuits.exception.ExecutionModeNotSupportedException;
 import sdc.avoidingproblems.circuits.exception.InvalidParamException;
@@ -15,12 +15,12 @@ public class PlusFunction implements Function {
    }
 
    @Override
-   public ValueAndMAC apply(ExecutionMode mode, BeaverTriple triple, FieldElement d, FieldElement e, ValueAndMAC... params) throws InvalidParamException, ExecutionModeNotSupportedException {
+   public SimpleRepresentation apply(ExecutionMode mode, BeaverTriple triple, FieldElement d, FieldElement e, SimpleRepresentation... params) throws InvalidParamException, ExecutionModeNotSupportedException {
       if (params.length != 2) {
          throw new InvalidParamException("Invalid param number");
       } else {
-         ValueAndMAC x = params[0];
-         ValueAndMAC y = params[1];
+         SimpleRepresentation x = params[0];
+         SimpleRepresentation y = params[1];
          return x.add(y);
       }
    }

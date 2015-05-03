@@ -1,6 +1,6 @@
 package sdc.avoidingproblems.circuits.algebra;
 
-import sdc.avoidingproblems.circuits.algebra.mac.ValueAndMAC;
+import sdc.avoidingproblems.circuits.algebra.mac.SimpleRepresentation;
 import java.security.SecureRandom;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,13 +32,13 @@ public class Field {
       return result;
    }
 
-   public ValueAndMAC[] createShares(ValueAndMAC vam, int NSHARES) {
+   public SimpleRepresentation[] createShares(SimpleRepresentation vam, int NSHARES) {
       FieldElement[] valueShares = createShares(vam.getValue(), NSHARES);
       FieldElement[] MACShares = createShares(vam.getMAC(), NSHARES);
 
-      ValueAndMAC[] shares = new ValueAndMAC[NSHARES];
+      SimpleRepresentation[] shares = new SimpleRepresentation[NSHARES];
       for (int i = 0; i < NSHARES; i++) {
-         shares[i] = new ValueAndMAC(valueShares[i], MACShares[i]);
+         shares[i] = new SimpleRepresentation(valueShares[i], MACShares[i]);
       }
 
       return shares;
@@ -67,9 +67,9 @@ public class Field {
       FieldElement c = a.mult(b);
       FieldElement cMAC = c.mult(fixedMACKey);
 
-      ValueAndMAC aAndMAC = new ValueAndMAC(a, aMAC);
-      ValueAndMAC bAndMAC = new ValueAndMAC(b, bMAC);
-      ValueAndMAC cAndMAC = new ValueAndMAC(c, cMAC);
+      SimpleRepresentation aAndMAC = new SimpleRepresentation(a, aMAC);
+      SimpleRepresentation bAndMAC = new SimpleRepresentation(b, bMAC);
+      SimpleRepresentation cAndMAC = new SimpleRepresentation(c, cMAC);
 
       BeaverTriple triple = new BeaverTriple(aAndMAC, bAndMAC, cAndMAC);
       return triple;

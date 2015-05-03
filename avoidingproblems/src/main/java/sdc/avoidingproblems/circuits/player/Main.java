@@ -9,7 +9,7 @@ import sdc.avoidingproblems.circuits.PreProcessedData;
 import sdc.avoidingproblems.circuits.algebra.BeaverTriple;
 import sdc.avoidingproblems.circuits.algebra.BigIntegerFE;
 import sdc.avoidingproblems.circuits.algebra.FieldElement;
-import sdc.avoidingproblems.circuits.algebra.mac.ValueAndMAC;
+import sdc.avoidingproblems.circuits.algebra.mac.SimpleRepresentation;
 import sdc.avoidingproblems.circuits.exception.ClassNotSupportedException;
 import sdc.avoidingproblems.circuits.exception.ExecutionModeNotSupportedException;
 import sdc.avoidingproblems.circuits.exception.InvalidParamException;
@@ -29,7 +29,7 @@ public class Main {
       Class<?> clazz = BigIntegerFE.class;
       FieldElement fixedMACKey = field.random(clazz);
 
-      List<ValueAndMAC> sumAll = new ArrayList(NPLAYERS);
+      List<SimpleRepresentation> sumAll = new ArrayList(NPLAYERS);
 
       // generate a random circuit
       CircuitGenerator generator = new CircuitGenerator();
@@ -51,7 +51,7 @@ public class Main {
       System.out.println("MOD " + MOD);
       System.out.println("SINGLE-PARTY:");
       FieldElement singePartyEvalResult = circuit.eval(inputs);
-      System.out.println("RESULT: " + new ValueAndMAC(singePartyEvalResult,singePartyEvalResult.mult(fixedMACKey)));
+      System.out.println("RESULT: " + new SimpleRepresentation(singePartyEvalResult,singePartyEvalResult.mult(fixedMACKey)));
 
       System.out.println("MULTI-PARTY:");
       // create shares for all the circuit's inputs
@@ -62,8 +62,8 @@ public class Main {
       }
 
       for (int i = 0; i < NINPUTS; i++) {
-         ValueAndMAC vam = new ValueAndMAC(inputs.get(i), inputs.get(i).mult(fixedMACKey));
-         ValueAndMAC[] shares = field.createShares(vam, NPLAYERS);
+         SimpleRepresentation vam = new SimpleRepresentation(inputs.get(i), inputs.get(i).mult(fixedMACKey));
+         SimpleRepresentation[] shares = field.createShares(vam, NPLAYERS);
          for (int j = 0; j < NPLAYERS; j++) {
             inputShares[j].add(shares[j]);
          }
@@ -84,9 +84,9 @@ public class Main {
 
       // create shares for all multiplication triples previously generated
       for (int i = 0; i < numberOfMultiplications; i++) {
-         ValueAndMAC[] aShares = field.createShares(multiplicationTriples[i].getA(), NPLAYERS);
-         ValueAndMAC[] bShares = field.createShares(multiplicationTriples[i].getB(), NPLAYERS);
-         ValueAndMAC[] cShares = field.createShares(multiplicationTriples[i].getC(), NPLAYERS);
+         SimpleRepresentation[] aShares = field.createShares(multiplicationTriples[i].getA(), NPLAYERS);
+         SimpleRepresentation[] bShares = field.createShares(multiplicationTriples[i].getB(), NPLAYERS);
+         SimpleRepresentation[] cShares = field.createShares(multiplicationTriples[i].getC(), NPLAYERS);
          for (int j = 0; j < NPLAYERS; j++) {
             preProcessedData[j].add(new BeaverTriple(aShares[j], bShares[j], cShares[j]));
          }
@@ -119,7 +119,7 @@ public class Main {
          players[i].join();
       }
 
-      ValueAndMAC all = sumAll.get(0);
+      SimpleRepresentation all = sumAll.get(0);
       for (int i = 1; i < NPLAYERS; i++) {
          all = all.add(sumAll.get(i));
       }

@@ -1,6 +1,6 @@
 package sdc.avoidingproblems.circuits.algebra;
 
-import sdc.avoidingproblems.circuits.algebra.mac.ValueAndMAC;
+import sdc.avoidingproblems.circuits.algebra.mac.SimpleRepresentation;
 import sdc.avoidingproblems.circuits.ExecutionMode;
 import sdc.avoidingproblems.circuits.exception.InvalidParamException;
 import sdc.avoidingproblems.circuits.exception.ExecutionModeNotSupportedException;
@@ -11,6 +11,6 @@ import sdc.avoidingproblems.circuits.exception.ExecutionModeNotSupportedExceptio
  */
 public interface Function {
 
-   ValueAndMAC apply(ExecutionMode mode, BeaverTriple triple, FieldElement d, FieldElement e, ValueAndMAC... params) throws InvalidParamException, ExecutionModeNotSupportedException;
+   SimpleRepresentation apply(ExecutionMode mode, BeaverTriple triple, FieldElement d, FieldElement e, SimpleRepresentation... params) throws InvalidParamException, ExecutionModeNotSupportedException;
 
 }

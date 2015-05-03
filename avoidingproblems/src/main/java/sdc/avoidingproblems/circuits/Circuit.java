@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import static sdc.avoidingproblems.circuits.ExecutionMode.LOCAL;
 import sdc.avoidingproblems.circuits.algebra.FieldElement;
-import sdc.avoidingproblems.circuits.algebra.mac.ValueAndMAC;
+import sdc.avoidingproblems.circuits.algebra.mac.SimpleRepresentation;
 import sdc.avoidingproblems.circuits.exception.ExecutionModeNotSupportedException;
 import sdc.avoidingproblems.circuits.exception.InvalidParamException;
 
@@ -47,13 +47,13 @@ public class Circuit {
    }
 
    public FieldElement eval(List<FieldElement> inputs) throws InvalidParamException, ExecutionModeNotSupportedException {
-      List<ValueAndMAC> values = new ArrayList();
+      List<SimpleRepresentation> values = new ArrayList();
       for (FieldElement fe : inputs) {
-         values.add(new ValueAndMAC(fe, fe)); // fake fake fake
+         values.add(new SimpleRepresentation(fe, fe)); // fake fake fake
       }
       for (Gate gate : gates) {
          List<Integer> inputEdges = gate.getInputEdges();
-         ValueAndMAC[] params = new ValueAndMAC[inputEdges.size()];
+         SimpleRepresentation[] params = new SimpleRepresentation[inputEdges.size()];
          for (int j = 0; j < inputEdges.size(); j++) {
             params[j] = values.get(inputEdges.get(j));
          }

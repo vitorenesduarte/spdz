@@ -1,6 +1,6 @@
 package sdc.avoidingproblems.circuits.algebra;
 
-import sdc.avoidingproblems.circuits.algebra.mac.ValueAndMAC;
+import sdc.avoidingproblems.circuits.algebra.mac.SimpleRepresentation;
 import sdc.avoidingproblems.circuits.ExecutionMode;
 import sdc.avoidingproblems.circuits.exception.InvalidParamException;
 import sdc.avoidingproblems.circuits.exception.ExecutionModeNotSupportedException;
@@ -15,14 +15,14 @@ public class MultFunction implements Function {
     }
 
     @Override
-    public ValueAndMAC apply(ExecutionMode mode, BeaverTriple triple, FieldElement d, FieldElement e, ValueAndMAC... params) throws InvalidParamException, ExecutionModeNotSupportedException {
+    public SimpleRepresentation apply(ExecutionMode mode, BeaverTriple triple, FieldElement d, FieldElement e, SimpleRepresentation... params) throws InvalidParamException, ExecutionModeNotSupportedException {
         switch (mode) {
             case LOCAL:
                 if (params.length != 2) {
                     throw new InvalidParamException("Invalid param number");
                 } else {
-                    ValueAndMAC x = params[0];
-                    ValueAndMAC y = params[1];
+                    SimpleRepresentation x = params[0];
+                    SimpleRepresentation y = params[1];
                     return x.mult(y);
                 }
             case DISTRIBUTED:
@@ -32,10 +32,10 @@ public class MultFunction implements Function {
                 if (d == null || e == null) {
                     throw new InvalidParamException("d and e cannot be null");
                 }
-                ValueAndMAC dShare = params[0];
-                ValueAndMAC a = triple.getA();
-                ValueAndMAC b = triple.getB();
-                ValueAndMAC c = triple.getC();
+                SimpleRepresentation dShare = params[0];
+                SimpleRepresentation a = triple.getA();
+                SimpleRepresentation b = triple.getB();
+                SimpleRepresentation c = triple.getC();
 
                 // [xy] = [c] + e[b] + d[a] + d[e]
                 // [xy] = [c] + e[b] + d[a] + [d]e

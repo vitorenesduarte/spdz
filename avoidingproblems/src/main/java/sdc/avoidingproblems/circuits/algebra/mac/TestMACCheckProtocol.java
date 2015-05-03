@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package sdc.avoidingproblems.circuits.algebra.mac;
 
 import java.security.SecureRandom;
@@ -51,9 +46,9 @@ public class TestMACCheckProtocol {
             FieldElement yFE = field.random(clazz);
             FieldElement zFE = field.random(clazz);
 
-            ValueAndMAC xMAC = new ValueAndMAC(xFE, xFE.mult(fixedMACKey));
-            ValueAndMAC yMAC = new ValueAndMAC(yFE, yFE.mult(fixedMACKey));
-            ValueAndMAC zMAC = new ValueAndMAC(zFE, zFE.mult(fixedMACKey));
+            SimpleRepresentation xMAC = new SimpleRepresentation(xFE, xFE.mult(fixedMACKey));
+            SimpleRepresentation yMAC = new SimpleRepresentation(yFE, yFE.mult(fixedMACKey));
+            SimpleRepresentation zMAC = new SimpleRepresentation(zFE, zFE.mult(fixedMACKey));
 
             System.out.println("MOD : " + MOD);
             System.out.println("{x : " + xMAC.getValue().intValue() + ", y : " + yMAC.getValue().intValue() + ", z : " + zMAC.getValue().intValue() + "}");
@@ -64,17 +59,17 @@ public class TestMACCheckProtocol {
             BeaverTriple sndTriple = field.randomMultiplicationTriple(clazz, fixedMACKey);
 
             // create shares
-            ValueAndMAC[] xMACShares = field.createShares(xMAC, NPLAYERS);
-            ValueAndMAC[] yMACShares = field.createShares(yMAC, NPLAYERS);
-            ValueAndMAC[] zMACShares = field.createShares(zMAC, NPLAYERS);
+            SimpleRepresentation[] xMACShares = field.createShares(xMAC, NPLAYERS);
+            SimpleRepresentation[] yMACShares = field.createShares(yMAC, NPLAYERS);
+            SimpleRepresentation[] zMACShares = field.createShares(zMAC, NPLAYERS);
 
-            ValueAndMAC[] aFstTripleShares = field.createShares(fstTriple.getA(), NPLAYERS);
-            ValueAndMAC[] bFstTripleShares = field.createShares(fstTriple.getB(), NPLAYERS);
-            ValueAndMAC[] cFstTripleShares = field.createShares(fstTriple.getC(), NPLAYERS);
+            SimpleRepresentation[] aFstTripleShares = field.createShares(fstTriple.getA(), NPLAYERS);
+            SimpleRepresentation[] bFstTripleShares = field.createShares(fstTriple.getB(), NPLAYERS);
+            SimpleRepresentation[] cFstTripleShares = field.createShares(fstTriple.getC(), NPLAYERS);
 
-            ValueAndMAC[] aSndTripleShares = field.createShares(sndTriple.getA(), NPLAYERS);
-            ValueAndMAC[] bSndTripleShares = field.createShares(sndTriple.getB(), NPLAYERS);
-            ValueAndMAC[] cSndTripleShares = field.createShares(sndTriple.getC(), NPLAYERS);
+            SimpleRepresentation[] aSndTripleShares = field.createShares(sndTriple.getA(), NPLAYERS);
+            SimpleRepresentation[] bSndTripleShares = field.createShares(sndTriple.getB(), NPLAYERS);
+            SimpleRepresentation[] cSndTripleShares = field.createShares(sndTriple.getC(), NPLAYERS);
 
             BeaverTriple fstTripleP0 = new BeaverTriple(aFstTripleShares[0], bFstTripleShares[0], cFstTripleShares[0]);
             BeaverTriple fstTripleP1 = new BeaverTriple(aFstTripleShares[1], bFstTripleShares[1], cFstTripleShares[1]);
@@ -83,12 +78,12 @@ public class TestMACCheckProtocol {
             BeaverTriple sndTripleP1 = new BeaverTriple(aSndTripleShares[1], bSndTripleShares[1], cSndTripleShares[1]);
 
             // Player 0
-            ValueAndMAC dFstP0 = xMACShares[0].sub(fstTripleP0.getA());
-            ValueAndMAC eFstP0 = yMACShares[0].sub(fstTripleP0.getB());
+            SimpleRepresentation dFstP0 = xMACShares[0].sub(fstTripleP0.getA());
+            SimpleRepresentation eFstP0 = yMACShares[0].sub(fstTripleP0.getB());
 
             // Player 1
-            ValueAndMAC dFstP1 = xMACShares[1].sub(fstTripleP1.getA());
-            ValueAndMAC eFstP1 = yMACShares[1].sub(fstTripleP1.getB());
+            SimpleRepresentation dFstP1 = xMACShares[1].sub(fstTripleP1.getA());
+            SimpleRepresentation eFstP1 = yMACShares[1].sub(fstTripleP1.getB());
 
             // Both
             FieldElement dFst = Util.getFieldElementInstance(clazz,
@@ -101,23 +96,23 @@ public class TestMACCheckProtocol {
 
             Function f = GateSemantic.getFunction(MULT);
             // Player 0
-            ValueAndMAC xyP0 = f.apply(DISTRIBUTED, fstTripleP0, dFst, eFst, dFstP0);
+            SimpleRepresentation xyP0 = f.apply(DISTRIBUTED, fstTripleP0, dFst, eFst, dFstP0);
 
             // Player 1
-            ValueAndMAC xyP1 = f.apply(DISTRIBUTED, fstTripleP1, dFst, eFst, dFstP1);
+            SimpleRepresentation xyP1 = f.apply(DISTRIBUTED, fstTripleP1, dFst, eFst, dFstP1);
 
             System.out.println("{xy0 : " + xyP0.getValue().intValue() + ", xy1 : " + xyP1.getValue().intValue() + "}");
             System.out.println("{xy : " + (xyP0.getValue().intValue() + xyP1.getValue().intValue()) % MOD + "}");
 
             // Player 0
-            ValueAndMAC dSndP0 = imSupposedToLie
-                    ? new ValueAndMAC(field.random(clazz), xyP0.sub(sndTripleP0.getA()).getMAC())
+            SimpleRepresentation dSndP0 = imSupposedToLie
+                    ? new SimpleRepresentation(field.random(clazz), xyP0.sub(sndTripleP0.getA()).getMAC())
                     : xyP0.sub(sndTripleP0.getA());
-            ValueAndMAC eSndP0 = zMACShares[0].sub(sndTripleP0.getB());
+            SimpleRepresentation eSndP0 = zMACShares[0].sub(sndTripleP0.getB());
 
             // Player 1
-            ValueAndMAC dSndP1 = xyP1.sub(sndTripleP1.getA());
-            ValueAndMAC eSndP1 = zMACShares[1].sub(sndTripleP1.getB());
+            SimpleRepresentation dSndP1 = xyP1.sub(sndTripleP1.getA());
+            SimpleRepresentation eSndP1 = zMACShares[1].sub(sndTripleP1.getB());
 
             // Both
             FieldElement dSnd = Util.getFieldElementInstance(clazz,
@@ -129,10 +124,10 @@ public class TestMACCheckProtocol {
                     MOD);
 
             // Player 0
-            ValueAndMAC xyzP0 = f.apply(DISTRIBUTED, sndTripleP0, dSnd, eSnd, dSndP0);
+            SimpleRepresentation xyzP0 = f.apply(DISTRIBUTED, sndTripleP0, dSnd, eSnd, dSndP0);
 
             // Player 1
-            ValueAndMAC xyzP1 = f.apply(DISTRIBUTED, sndTripleP1, dSnd, eSnd, dSndP1);
+            SimpleRepresentation xyzP1 = f.apply(DISTRIBUTED, sndTripleP1, dSnd, eSnd, dSndP1);
 
             System.out.println("{xyz0 : " + xyzP0.getValue().intValue() + ", xyz1 : " + xyzP1.getValue().intValue() + "}");
             System.out.println("{xyz : " + (xyzP0.getValue().intValue() + xyzP1.getValue().intValue()) % MOD + "}");
@@ -179,13 +174,13 @@ public class TestMACCheckProtocol {
             // ...
             // both will check and now both know the value of u
             // P0
-            ValueAndMAC yP0 = dFstP0.mult(u.pow(0))
+            SimpleRepresentation yP0 = dFstP0.mult(u.pow(0))
                     .add(eFstP0.mult(u.pow(1)))
                     .add(dSndP0.mult(u.pow(2)))
                     .add(eSndP0.mult(u.pow(3)));
 
             // P1
-            ValueAndMAC yP1 = dFstP1.mult(u.pow(0))
+            SimpleRepresentation yP1 = dFstP1.mult(u.pow(0))
                     .add(eFstP1.mult(u.pow(1)))
                     .add(dSndP1.mult(u.pow(2)))
                     .add(eSndP1.mult(u.pow(3)));
