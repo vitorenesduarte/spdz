@@ -43,4 +43,8 @@ public class DealerConfiguration {
       return players;
    }
 
+   @Override
+   public String toString() {
+      return "DealerConfiguration{" + "numberOfInputs=" + numberOfInputs + ", batchCheckSize=" + batchCheckSize + ", generateInputs=" + generateInputs + ", MOD=" + MOD + ", players=" + players + '}';
+   }
 }

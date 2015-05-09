@@ -1,0 +1,2 @@
+#!/bin/bash
+run dealer.Dealer -c src/main/java/sdc/avoidingproblems/circuits/configuration/dealerConfiguration.json
