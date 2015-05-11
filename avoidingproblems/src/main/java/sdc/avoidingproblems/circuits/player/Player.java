@@ -30,6 +30,8 @@ import sdc.avoidingproblems.circuits.algebra.mac.SimpleRepresentation;
 import sdc.avoidingproblems.circuits.exception.ClassNotSupportedException;
 import sdc.avoidingproblems.circuits.exception.InvalidParamException;
 import sdc.avoidingproblems.circuits.exception.OperationNotSupportedException;
+import sdc.avoidingproblems.circuits.message.MessageManager;
+import sdc.avoidingproblems.circuits.message.MultiplicationShare;
 
 /**
  *
@@ -39,7 +41,7 @@ public class Player extends Thread {
 
    private static final Logger logger = Logger.getLogger(Player.class.getName());
    private final String MESSAGE_SEPARATOR = "::";
-   private int countDistributedMultiplications = 0;
+   private Long countDistributedMultiplications = 0L;
    private final Semaphore semaphore = new Semaphore(0);
    private final List<DsAndEs> sharesReady = new ArrayList();
 
@@ -49,11 +51,9 @@ public class Player extends Thread {
    private Long MOD;
    private List<PlayerID> players;
    private PreProcessedData preProcessedData;
-   private final int UID;
    private final List<SimpleRepresentation> sumAll;
 
    public Player(int UID, String host, int port, List<SimpleRepresentation> sumAll) {
-      this.UID = UID;
       this.playerID = new PlayerID("UID" + UID, host, port);
       this.sumAll = sumAll;
    }
@@ -118,7 +118,7 @@ public class Player extends Thread {
             edgesValues.add(result);
          }
 
-         SimpleRepresentation result  = edgesValues.get(edgesValues.size() - 1);
+         SimpleRepresentation result = edgesValues.get(edgesValues.size() - 1);
          sumAll.add(result);
       } catch (InvalidParamException | InvalidPlayersException | InterruptedException | ExecutionModeNotSupportedException | OperationNotSupportedException ex) {
          logger.log(Level.SEVERE, null, ex);
@@ -165,16 +165,11 @@ public class Player extends Thread {
       return edgesValues;
    }
 
-   private SimpleRepresentation evalDistributedMult(SimpleRepresentation x, SimpleRepresentation y, BeaverTriple triple, int countDistributedMultiplications) throws InterruptedException, InvalidParamException, ExecutionModeNotSupportedException {
+   private SimpleRepresentation evalDistributedMult(SimpleRepresentation x, SimpleRepresentation y, BeaverTriple triple, Long countDistributedMultiplications) throws InterruptedException, InvalidParamException, ExecutionModeNotSupportedException {
       SimpleRepresentation dShared = x.sub(triple.getA());
       SimpleRepresentation eShared = y.sub(triple.getB());
 
-      String message = countDistributedMultiplications + MESSAGE_SEPARATOR
-              + playerID.getUID() + MESSAGE_SEPARATOR
-              + dShared.getValue().longValue() + MESSAGE_SEPARATOR
-              + eShared.getValue().longValue() + "\n";
-      //count::uid_i::d_i::e_i
-
+      String message = MessageManager.createMessage(new MultiplicationShare(countDistributedMultiplications, dShared.getValue().longValue(), eShared.getValue().longValue()));
       sendToPlayers(message);
 
       semaphore.acquire();
@@ -221,18 +216,17 @@ public class Player extends Thread {
                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                String line = in.readLine();
                //out("recebi : " + line);
-               String[] parts = line != null ? line.split(MESSAGE_SEPARATOR) : null;
-               if (parts != null && parts.length == 4) {
-                  Long mult = Long.valueOf(parts[0]);
-                  Long dShare = Long.valueOf(parts[2]);
-                  Long eShare = Long.valueOf(parts[3]);
+               Object o = MessageManager.getMessage(line);
+               if (o instanceof MultiplicationShare) {
+                  MultiplicationShare multiplicationShare = (MultiplicationShare) o;
+                  Long mult = multiplicationShare.getMultID();
                   if (mapGateToShares.containsKey(mult)) {
                      DsAndEs share = mapGateToShares.get(mult);
-                     share.addToD(dShare);
-                     share.addToE(eShare);
+                     share.addToD(multiplicationShare.getD());
+                     share.addToE(multiplicationShare.getE());
                      share.incrNumberOfShares();
                   } else {
-                     DsAndEs tuple = new DsAndEs(dShare, eShare, MOD, sharedInputs.get(0).getValue().getClass());
+                     DsAndEs tuple = new DsAndEs(multiplicationShare.getD(), multiplicationShare.getE(), MOD, sharedInputs.get(0).getValue().getClass());
                      mapGateToShares.put(mult, tuple);
                   }
 
@@ -245,7 +239,7 @@ public class Player extends Thread {
                in.close();
                socket.close();
             }
-         } catch (IOException | ClassNotSupportedException ex) {
+         } catch (IOException | ClassNotSupportedException | ClassNotFoundException ex) {
             logger.log(Level.SEVERE, null, ex);
          }
       }
