@@ -8,13 +8,13 @@ import com.google.gson.Gson;
  */
 public class JSONManager {
 
-   private final Gson gson = new Gson();
+   private static final Gson gson = new Gson();
 
-   public String toJSON(Object o) {
+   public static String toJSON(Object o) {
       return gson.toJson(o);
    }
 
-   public <T extends Object> T fromJSON(String json, Class<T> clazz) {
+   public static <T extends Object> T fromJSON(String json, Class<T> clazz) {
       return gson.fromJson(json, clazz);
    }
 }
