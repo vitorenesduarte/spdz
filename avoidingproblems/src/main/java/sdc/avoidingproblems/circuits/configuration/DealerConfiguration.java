@@ -9,13 +9,13 @@ import java.util.List;
 public class DealerConfiguration {
    // for now the dealer also generates the circuit and sends everything to the players;
 
-   private final Long numberOfInputs;
-   private final Long batchCheckSize;
+   private final Integer numberOfInputs;
+   private final Integer batchCheckSize;
    private final Boolean generateInputs;
    private final Long MOD;
    private final List<String> players; // host and port. e.g.: localhost:4567
 
-   public DealerConfiguration(Long numberOfInputs, Long batchCheckSize, Boolean generateInputs, Long MOD, List<String> players) {
+   public DealerConfiguration(Integer numberOfInputs, Integer batchCheckSize, Boolean generateInputs, Long MOD, List<String> players) {
       this.numberOfInputs = numberOfInputs;
       this.batchCheckSize = batchCheckSize;
       this.generateInputs = generateInputs;
@@ -23,11 +23,11 @@ public class DealerConfiguration {
       this.players = players;
    }
 
-   public Long getNumberOfInputs() {
+   public Integer getNumberOfInputs() {
       return numberOfInputs;
    }
 
-   public Long getBatchCheckSize() {
+   public Integer getBatchCheckSize() {
       return batchCheckSize;
    }
 

@@ -5,6 +5,8 @@ import com.google.gson.JsonSyntaxException;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import sdc.avoidingproblems.circuits.Circuit;
+import sdc.avoidingproblems.circuits.CircuitGenerator;
 import sdc.avoidingproblems.circuits.configuration.DealerConfiguration;
 
 /**
@@ -33,7 +35,7 @@ public class Dealer {
             return;
          }
 
-         System.out.println(configuration);
+         Circuit circuit = CircuitGenerator.generate(configuration.getNumberOfInputs());
       }
    }
 }

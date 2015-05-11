@@ -46,7 +46,7 @@ public class Player extends Thread {
    private final PlayerID playerID;
    private Circuit circuit;
    private List<SimpleRepresentation> sharedInputs;
-   private Integer MOD;
+   private Long MOD;
    private List<PlayerID> players;
    private PreProcessedData preProcessedData;
    private final int UID;
@@ -70,7 +70,7 @@ public class Player extends Thread {
       this.sharedInputs = sharedInputs;
    }
 
-   public void setMOD(int MOD) {
+   public void setMOD(Long MOD) {
       this.MOD = MOD;
    }
 
@@ -171,16 +171,16 @@ public class Player extends Thread {
 
       String message = countDistributedMultiplications + MESSAGE_SEPARATOR
               + playerID.getUID() + MESSAGE_SEPARATOR
-              + dShared.getValue().intValue() + MESSAGE_SEPARATOR
-              + eShared.getValue().intValue() + "\n";
+              + dShared.getValue().longValue() + MESSAGE_SEPARATOR
+              + eShared.getValue().longValue() + "\n";
       //count::uid_i::d_i::e_i
 
       sendToPlayers(message);
 
       semaphore.acquire();
       DsAndEs readyShare = sharesReady.remove(0);
-      readyShare.addToD(dShared.getValue().intValue());
-      readyShare.addToE(eShared.getValue().intValue());
+      readyShare.addToD(dShared.getValue().longValue());
+      readyShare.addToE(eShared.getValue().longValue());
 
       Function f = GateSemantic.getFunction(MULT);
       SimpleRepresentation result = f.apply(DISTRIBUTED, triple, readyShare.getD(), readyShare.getE(), dShared);
@@ -206,7 +206,7 @@ public class Player extends Thread {
 
    private class SocketReader extends Thread {
 
-      private final Map<Integer, DsAndEs> mapGateToShares;
+      private final Map<Long, DsAndEs> mapGateToShares;
 
       private SocketReader() {
          this.mapGateToShares = new HashMap();
@@ -223,9 +223,9 @@ public class Player extends Thread {
                //out("recebi : " + line);
                String[] parts = line != null ? line.split(MESSAGE_SEPARATOR) : null;
                if (parts != null && parts.length == 4) {
-                  int mult = Integer.valueOf(parts[0]);
-                  int dShare = Integer.valueOf(parts[2]);
-                  int eShare = Integer.valueOf(parts[3]);
+                  Long mult = Long.valueOf(parts[0]);
+                  Long dShare = Long.valueOf(parts[2]);
+                  Long eShare = Long.valueOf(parts[3]);
                   if (mapGateToShares.containsKey(mult)) {
                      DsAndEs share = mapGateToShares.get(mult);
                      share.addToD(dShare);

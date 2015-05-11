@@ -22,7 +22,7 @@ import sdc.avoidingproblems.circuits.exception.InvalidParamException;
 public class Main {
 
    public static void main(String[] args) throws ExecutionModeNotSupportedException, InterruptedException, ClassNotSupportedException, InvalidParamException {
-      int MOD = 41;
+      Long MOD = 41L;
       int NINPUTS = 10000;
       int NPLAYERS = 3;
       Field field = new Field(MOD);
@@ -32,8 +32,7 @@ public class Main {
       List<SimpleRepresentation> sumAll = new ArrayList(NPLAYERS);
 
       // generate a random circuit
-      CircuitGenerator generator = new CircuitGenerator();
-      Circuit circuit = generator.generate(NINPUTS);
+      Circuit circuit = CircuitGenerator.generate(NINPUTS);
 
       //Jung.preview(circuit);
       System.out.println(circuit.toString());

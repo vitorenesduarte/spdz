@@ -9,7 +9,7 @@ package sdc.avoidingproblems.circuits.algebra;
  */
 public interface FieldElement {
 
-    int intValue();
+    Long longValue();
 
     FieldElement add(FieldElement fe);
 

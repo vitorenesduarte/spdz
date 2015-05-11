@@ -10,7 +10,7 @@ import sdc.avoidingproblems.circuits.exception.ClassNotSupportedException;
  */
 public class Util {
 
-   public static FieldElement getFieldElementInstance(Class<?> clazz, Integer value, Integer MOD) throws ClassNotSupportedException {
+   public static FieldElement getFieldElementInstance(Class<?> clazz, Long value, Long MOD) throws ClassNotSupportedException {
       try {
          Constructor<?> constructor = clazz.getConstructor(Integer.class, Integer.class);
          FieldElement result = (FieldElement) constructor.newInstance(value, MOD);

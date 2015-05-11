@@ -15,18 +15,18 @@ public class Field {
 
    private static final Logger logger = Logger.getLogger(Field.class.getName());
 
-   private final int MOD;
+   private final Long MOD;
    private final SecureRandom random;
 
-   public Field(int MOD) {
+   public Field(Long MOD) {
       this.MOD = MOD;
       this.random = new SecureRandom();
    }
 
    public FieldElement random(Class<?> clazz) throws ClassNotSupportedException {
-      int value = 0;
-      while (value == 0) { // does this compromises anything?
-         value = random.nextInt(MOD);
+      Long value = 0L;
+      while (value == 0L) { // does this compromises anything?
+         value = (long) (random.nextDouble() * MOD);
       }
       FieldElement result = Util.getFieldElementInstance(clazz, value, MOD);
       return result;

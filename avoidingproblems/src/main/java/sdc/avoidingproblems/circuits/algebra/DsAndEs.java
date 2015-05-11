@@ -9,10 +9,10 @@ import sdc.avoidingproblems.circuits.exception.ClassNotSupportedException;
 public class DsAndEs {
 
    private FieldElement d, e;
-   private final int MOD;
+   private final Long MOD;
    private int numberOfShares;
 
-   public DsAndEs(int d, int e, int MOD, Class<?> clazz) throws ClassNotSupportedException {
+   public DsAndEs(Long d, Long e, Long MOD, Class<?> clazz) throws ClassNotSupportedException {
       this.MOD = MOD;
       this.d = Util.getFieldElementInstance(clazz, d, MOD);
       this.e = Util.getFieldElementInstance(clazz, e, MOD);
@@ -31,11 +31,11 @@ public class DsAndEs {
       return numberOfShares;
    }
 
-   public void addToD(int x) {
+   public void addToD(Long x) {
       d = d.add(new BigIntegerFE(x, MOD));
    }
 
-   public void addToE(int x) {
+   public void addToE(Long x) {
       e = e.add(new BigIntegerFE(x, MOD));
    }
 
