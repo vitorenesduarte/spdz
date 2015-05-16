@@ -6,5 +6,5 @@ package sdc.avoidingproblems.circuits;
  */
 public enum ExecutionMode {
 
-   LOCAL, DISTRIBUTED;
+    LOCAL, DISTRIBUTED;
 }

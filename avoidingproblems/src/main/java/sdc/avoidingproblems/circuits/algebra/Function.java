@@ -11,6 +11,6 @@ import sdc.avoidingproblems.circuits.exception.ExecutionModeNotSupportedExceptio
  */
 public interface Function {
 
-   SimpleRepresentation apply(ExecutionMode mode, BeaverTriple triple, FieldElement d, FieldElement e, SimpleRepresentation... params) throws InvalidParamException, ExecutionModeNotSupportedException;
+    SimpleRepresentation apply(ExecutionMode mode, BeaverTriple triple, FieldElement d, FieldElement e, SimpleRepresentation... params) throws InvalidParamException, ExecutionModeNotSupportedException;
 
 }

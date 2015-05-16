@@ -11,7 +11,7 @@ public class ExtendedRepresentationWithSum extends ExtendedRepresentation {
 
     private final FieldElement sum;
 
-    public ExtendedRepresentationWithSum(FieldElement beta, FieldElement value, FieldElement sum, Map<Integer, FieldElement> playersMACShares) {
+    public ExtendedRepresentationWithSum(FieldElement beta, FieldElement value, FieldElement sum, Map<String, FieldElement> playersMACShares) {
         super(beta, value, playersMACShares);
         this.sum = sum;
     }

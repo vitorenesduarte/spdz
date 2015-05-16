@@ -6,12 +6,12 @@ package sdc.avoidingproblems.circuits.exception;
  */
 public class OperationNotSupportedException extends Exception {
 
-   public OperationNotSupportedException() {
-      super();
-   }
-   
-   public OperationNotSupportedException(String message){
-      super(message);
-   }
+    public OperationNotSupportedException() {
+        super();
+    }
+
+    public OperationNotSupportedException(String message) {
+        super(message);
+    }
 
 }

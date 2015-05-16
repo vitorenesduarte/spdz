@@ -6,11 +6,11 @@ package sdc.avoidingproblems.circuits.exception;
  */
 public class ClassNotSupportedException extends Exception {
 
-   public ClassNotSupportedException() {
-      super();
-   }
+    public ClassNotSupportedException() {
+        super();
+    }
 
-   public ClassNotSupportedException(String message) {
-      super(message);
-   }
+    public ClassNotSupportedException(String message) {
+        super(message);
+    }
 }

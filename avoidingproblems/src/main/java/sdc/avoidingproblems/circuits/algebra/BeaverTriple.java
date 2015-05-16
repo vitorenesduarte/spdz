@@ -8,24 +8,24 @@ import sdc.avoidingproblems.circuits.algebra.mac.SimpleRepresentation;
  */
 public class BeaverTriple {
 
-   private final SimpleRepresentation a, b, c;
+    private final SimpleRepresentation a, b, c;
 
-   public BeaverTriple(SimpleRepresentation a, SimpleRepresentation b, SimpleRepresentation c) {
-      this.a = a;
-      this.b = b;
-      this.c = c;
-   }
+    public BeaverTriple(SimpleRepresentation a, SimpleRepresentation b, SimpleRepresentation c) {
+        this.a = a;
+        this.b = b;
+        this.c = c;
+    }
 
-   public SimpleRepresentation getA() {
-      return a;
-   }
+    public SimpleRepresentation getA() {
+        return a;
+    }
 
-   public SimpleRepresentation getB() {
-      return b;
-   }
+    public SimpleRepresentation getB() {
+        return b;
+    }
 
-   public SimpleRepresentation getC() {
-      return c;
-   }
+    public SimpleRepresentation getC() {
+        return c;
+    }
 
 }

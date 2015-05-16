@@ -10,15 +10,15 @@ import sdc.avoidingproblems.circuits.exception.ClassNotSupportedException;
  */
 public class Util {
 
-   public static FieldElement getFieldElementInstance(Class<?> clazz, Long value, Long MOD) throws ClassNotSupportedException {
-      try {
-         Constructor<?> constructor = clazz.getConstructor(Long.class, Long.class);
-         FieldElement result = (FieldElement) constructor.newInstance(value, MOD);
-         return result;
-      } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-         throw new ClassNotSupportedException(ex.getMessage());
-         // maybe we're swallowing too many exceptions
-      }
-   }
+    public static FieldElement getFieldElementInstance(Class<?> clazz, Long value, Long MOD) throws ClassNotSupportedException {
+        try {
+            Constructor<?> constructor = clazz.getConstructor(Long.class, Long.class);
+            FieldElement result = (FieldElement) constructor.newInstance(value, MOD);
+            return result;
+        } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+            throw new ClassNotSupportedException(ex.getMessage());
+            // maybe we're swallowing too many exceptions
+        }
+    }
 
 }

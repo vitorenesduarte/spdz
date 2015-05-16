@@ -6,11 +6,11 @@ package sdc.avoidingproblems.circuits.exception;
  */
 public class InvalidPlayersException extends Exception {
 
-   public InvalidPlayersException() {
-      super();
-   }
-   
-   public InvalidPlayersException(String message){
-      super(message);
-   }
+    public InvalidPlayersException() {
+        super();
+    }
+
+    public InvalidPlayersException(String message) {
+        super(message);
+    }
 }

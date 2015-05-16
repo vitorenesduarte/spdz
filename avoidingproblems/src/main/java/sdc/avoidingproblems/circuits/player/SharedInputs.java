@@ -10,18 +10,18 @@ import sdc.avoidingproblems.circuits.algebra.mac.SimpleRepresentation;
  */
 public class SharedInputs {
 
-   private final List<SimpleRepresentation> sharedInputs;
+    private final List<SimpleRepresentation> sharedInputs;
 
-   public SharedInputs(int NINPUTS) {
-      this.sharedInputs = new ArrayList(NINPUTS);
-   }
+    public SharedInputs(int NINPUTS) {
+        this.sharedInputs = new ArrayList(NINPUTS);
+    }
 
-   public void add(SimpleRepresentation x) {
-      sharedInputs.add(x);
-   }
+    public void add(SimpleRepresentation x) {
+        sharedInputs.add(x);
+    }
 
-   public List<SimpleRepresentation> get() {
-      return sharedInputs;
-   }
+    public List<SimpleRepresentation> get() {
+        return sharedInputs;
+    }
 
 }

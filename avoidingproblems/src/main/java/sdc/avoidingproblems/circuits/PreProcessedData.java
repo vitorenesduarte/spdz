@@ -10,26 +10,26 @@ import sdc.avoidingproblems.circuits.algebra.BeaverTriple;
  */
 public class PreProcessedData {
 
-   private final List<BeaverTriple> multiplicationTriples;
+    private final List<BeaverTriple> multiplicationTriples;
 
-   public PreProcessedData() {
-      this.multiplicationTriples = new ArrayList<>();
-   }
+    public PreProcessedData() {
+        this.multiplicationTriples = new ArrayList<>();
+    }
 
-   public PreProcessedData(List<BeaverTriple> multiplicationTriples) {
-      this.multiplicationTriples = multiplicationTriples;
-   }
-   
-   public void add(BeaverTriple triple){
-      this.multiplicationTriples.add(triple);
-   }
+    public PreProcessedData(List<BeaverTriple> multiplicationTriples) {
+        this.multiplicationTriples = multiplicationTriples;
+    }
 
-   public BeaverTriple consume() {
-      BeaverTriple triple = null;
-      if (multiplicationTriples.size() > 0) {
-         triple = multiplicationTriples.remove(0);
-      }
+    public void add(BeaverTriple triple) {
+        this.multiplicationTriples.add(triple);
+    }
 
-      return triple;
-   }
+    public BeaverTriple consume() {
+        BeaverTriple triple = null;
+        if (multiplicationTriples.size() > 0) {
+            triple = multiplicationTriples.remove(0);
+        }
+
+        return triple;
+    }
 }

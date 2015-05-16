@@ -21,109 +21,109 @@ import sdc.avoidingproblems.circuits.exception.InvalidParamException;
  */
 public class Main {
 
-   public static void main(String[] args) throws ExecutionModeNotSupportedException, InterruptedException, ClassNotSupportedException, InvalidParamException {
-      Long MOD = 41L;
-      int NINPUTS = 100;
-      int NPLAYERS = 3;
-      Field field = new Field(MOD);
-      Class<?> clazz = BigIntegerFE.class;
-      FieldElement fixedMACKey = field.random(clazz);
+    public static void main(String[] args) throws ExecutionModeNotSupportedException, InterruptedException, ClassNotSupportedException, InvalidParamException {
+        Long MOD = 41L;
+        int NINPUTS = 100;
+        int NPLAYERS = 3;
+        Field field = new Field(MOD);
+        Class<?> clazz = BigIntegerFE.class;
+        FieldElement fixedMACKey = field.random(clazz);
 
-      List<SimpleRepresentation> sumAll = new ArrayList(NPLAYERS);
+        List<SimpleRepresentation> sumAll = new ArrayList(NPLAYERS);
 
-      // generate a random circuit
-      Circuit circuit = CircuitGenerator.generate(NINPUTS);
+        // generate a random circuit
+        Circuit circuit = CircuitGenerator.generate(NINPUTS);
 
-      //Jung.preview(circuit);
-      System.out.println(circuit.toString());
-      int numberOfCommunications = NPLAYERS * (NPLAYERS - 1) * circuit.getMultiplicationGatesCount();
-      System.out.println("Number of comunications : " + numberOfCommunications);
-      System.out.println("Number of players : " + NPLAYERS);
-      // generate random inputs for the circuit
-      List<FieldElement> inputs = new ArrayList(NINPUTS);
-      for (int i = 0; i < NINPUTS; i++) {
-         inputs.add(field.random(clazz));
-      }
+        //Jung.preview(circuit);
+        System.out.println(circuit.toString());
+        int numberOfCommunications = NPLAYERS * (NPLAYERS - 1) * circuit.getMultiplicationGatesCount();
+        System.out.println("Number of comunications : " + numberOfCommunications);
+        System.out.println("Number of players : " + NPLAYERS);
+        // generate random inputs for the circuit
+        List<FieldElement> inputs = new ArrayList(NINPUTS);
+        for (int i = 0; i < NINPUTS; i++) {
+            inputs.add(field.random(clazz));
+        }
 
-      System.out.println("INPUTS: " + inputs.toString());
-      System.out.println("FIXED MAC KEY: " + fixedMACKey);
-      System.out.println("MOD " + MOD);
-      System.out.println("SINGLE-PARTY:");
-      FieldElement singePartyEvalResult = circuit.eval(inputs);
-      System.out.println("RESULT: " + new SimpleRepresentation(singePartyEvalResult,singePartyEvalResult.mult(fixedMACKey)));
+        System.out.println("INPUTS: " + inputs.toString());
+        System.out.println("FIXED MAC KEY: " + fixedMACKey);
+        System.out.println("MOD " + MOD);
+        System.out.println("SINGLE-PARTY:");
+        FieldElement singePartyEvalResult = circuit.eval(inputs);
+        System.out.println("RESULT: " + new SimpleRepresentation(singePartyEvalResult, singePartyEvalResult.mult(fixedMACKey)));
 
-      System.out.println("MULTI-PARTY:");
+        System.out.println("MULTI-PARTY:");
       // create shares for all the circuit's inputs
-      // number of shares == number of players
-      SharedInputs[] inputShares = new SharedInputs[NPLAYERS];
-      for (int i = 0; i < NPLAYERS; i++) {
-         inputShares[i] = new SharedInputs(NINPUTS);
-      }
+        // number of shares == number of players
+        SharedInputs[] inputShares = new SharedInputs[NPLAYERS];
+        for (int i = 0; i < NPLAYERS; i++) {
+            inputShares[i] = new SharedInputs(NINPUTS);
+        }
 
-      for (int i = 0; i < NINPUTS; i++) {
-         SimpleRepresentation vam = new SimpleRepresentation(inputs.get(i), inputs.get(i).mult(fixedMACKey));
-         SimpleRepresentation[] shares = field.createShares(vam, NPLAYERS);
-         for (int j = 0; j < NPLAYERS; j++) {
-            inputShares[j].add(shares[j]);
-         }
-      }
+        for (int i = 0; i < NINPUTS; i++) {
+            SimpleRepresentation vam = new SimpleRepresentation(inputs.get(i), inputs.get(i).mult(fixedMACKey));
+            SimpleRepresentation[] shares = field.createShares(vam, NPLAYERS);
+            for (int j = 0; j < NPLAYERS; j++) {
+                inputShares[j].add(shares[j]);
+            }
+        }
 
-      // create random multiplication triples for all multiplication gates
-      int numberOfMultiplications = circuit.getMultiplicationGatesCount();
-      BeaverTriple[] multiplicationTriples = new BeaverTriple[numberOfMultiplications];
-      for (int i = 0; i < numberOfMultiplications; i++) {
-         multiplicationTriples[i] = field.randomMultiplicationTriple(clazz, fixedMACKey);
-      }
+        // create random multiplication triples for all multiplication gates
+        int numberOfMultiplications = circuit.getMultiplicationGatesCount();
+        BeaverTriple[] multiplicationTriples = new BeaverTriple[numberOfMultiplications];
+        for (int i = 0; i < numberOfMultiplications; i++) {
+            multiplicationTriples[i] = field.randomMultiplicationTriple(clazz, fixedMACKey);
+        }
 
-      // init all pre processed data
-      PreProcessedData[] preProcessedData = new PreProcessedData[NPLAYERS];
-      for (int i = 0; i < NPLAYERS; i++) {
-         preProcessedData[i] = new PreProcessedData();
-      }
+        // init all pre processed data
+        PreProcessedData[] preProcessedData = new PreProcessedData[NPLAYERS];
+        for (int i = 0; i < NPLAYERS; i++) {
+            preProcessedData[i] = new PreProcessedData();
+        }
 
-      // create shares for all multiplication triples previously generated
-      for (int i = 0; i < numberOfMultiplications; i++) {
-         SimpleRepresentation[] aShares = field.createShares(multiplicationTriples[i].getA(), NPLAYERS);
-         SimpleRepresentation[] bShares = field.createShares(multiplicationTriples[i].getB(), NPLAYERS);
-         SimpleRepresentation[] cShares = field.createShares(multiplicationTriples[i].getC(), NPLAYERS);
-         for (int j = 0; j < NPLAYERS; j++) {
-            preProcessedData[j].add(new BeaverTriple(aShares[j], bShares[j], cShares[j]));
-         }
-      }
+        // create shares for all multiplication triples previously generated
+        for (int i = 0; i < numberOfMultiplications; i++) {
+            SimpleRepresentation[] aShares = field.createShares(multiplicationTriples[i].getA(), NPLAYERS);
+            SimpleRepresentation[] bShares = field.createShares(multiplicationTriples[i].getB(), NPLAYERS);
+            SimpleRepresentation[] cShares = field.createShares(multiplicationTriples[i].getC(), NPLAYERS);
+            for (int j = 0; j < NPLAYERS; j++) {
+                preProcessedData[j].add(new BeaverTriple(aShares[j], bShares[j], cShares[j]));
+            }
+        }
 
-      Player[] players = new Player[NPLAYERS];
-      ArrayList<PlayerID> playersID = new ArrayList();
-      for (int i = 0; i < NPLAYERS; i++) {
-         players[i] = new Player(i, "localhost", 3000 + i, sumAll);
-         playersID.add(players[i].getID());
-      }
+        Player[] players = new Player[NPLAYERS];
+        ArrayList<PlayerID> playersID = new ArrayList();
+        for (int i = 0; i < NPLAYERS; i++) {
+            players[i] = new Player(i, "localhost", 3000 + i, sumAll);
+            playersID.add(players[i].getID());
+        }
 
-      for (int i = 0; i < NPLAYERS; i++) {
-         players[i].setCircuit(circuit);
-         players[i].setMOD(MOD);
+        for (int i = 0; i < NPLAYERS; i++) {
+            players[i].setCircuit(circuit);
+            players[i].setMOD(MOD);
 
-         players[i].setInputs(inputShares[i].get());
-         players[i].setPreProcessedData(preProcessedData[i]);
+            players[i].setInputs(inputShares[i].get());
+            players[i].setPreProcessedData(preProcessedData[i]);
 
-         ArrayList<PlayerID> playersIDCopy = new ArrayList(playersID);
-         playersIDCopy.remove(players[i].getID());
-         players[i].setPlayers(playersIDCopy);
-      }
+            ArrayList<PlayerID> playersIDCopy = new ArrayList(playersID);
+            playersIDCopy.remove(players[i].getID());
+            players[i].setPlayers(playersIDCopy);
+        }
 
-      long start = System.currentTimeMillis();
-      for (int i = 0; i < NPLAYERS; i++) {
-         players[i].start();
-      }
-      for (int i = 0; i < NPLAYERS; i++) {
-         players[i].join();
-      }
+        long start = System.currentTimeMillis();
+        for (int i = 0; i < NPLAYERS; i++) {
+            players[i].start();
+        }
+        for (int i = 0; i < NPLAYERS; i++) {
+            players[i].join();
+        }
 
-      SimpleRepresentation all = sumAll.get(0);
-      for (int i = 1; i < NPLAYERS; i++) {
-         all = all.add(sumAll.get(i));
-      }
+        SimpleRepresentation all = sumAll.get(0);
+        for (int i = 1; i < NPLAYERS; i++) {
+            all = all.add(sumAll.get(i));
+        }
 
-      System.out.println("RESULT: " + all);
-      System.out.println("TOTAL TIME: " + (System.currentTimeMillis() - start));
-   }
+        System.out.println("RESULT: " + all);
+        System.out.println("TOTAL TIME: " + (System.currentTimeMillis() - start));
+    }
 }

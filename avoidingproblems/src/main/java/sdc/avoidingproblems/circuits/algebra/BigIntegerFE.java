@@ -51,9 +51,9 @@ public class BigIntegerFE implements FieldElement {
 
         return new BigIntegerFE(result.longValue(), MOD.longValue());
     }
-    
+
     @Override
-    public int compare(FieldElement fe){
+    public int compare(FieldElement fe) {
         BigInteger argument = BigInteger.valueOf(fe.longValue());
         return argument.compareTo(elem);
     }

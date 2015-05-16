@@ -11,18 +11,18 @@ import sdc.avoidingproblems.circuits.exception.InvalidParamException;
  */
 public class PlusFunction implements Function {
 
-   public PlusFunction() {
-   }
+    public PlusFunction() {
+    }
 
-   @Override
-   public SimpleRepresentation apply(ExecutionMode mode, BeaverTriple triple, FieldElement d, FieldElement e, SimpleRepresentation... params) throws InvalidParamException, ExecutionModeNotSupportedException {
-      if (params.length != 2) {
-         throw new InvalidParamException("Invalid param number");
-      } else {
-         SimpleRepresentation x = params[0];
-         SimpleRepresentation y = params[1];
-         return x.add(y);
-      }
-   }
+    @Override
+    public SimpleRepresentation apply(ExecutionMode mode, BeaverTriple triple, FieldElement d, FieldElement e, SimpleRepresentation... params) throws InvalidParamException, ExecutionModeNotSupportedException {
+        if (params.length != 2) {
+            throw new InvalidParamException("Invalid param number");
+        } else {
+            SimpleRepresentation x = params[0];
+            SimpleRepresentation y = params[1];
+            return x.add(y);
+        }
+    }
 
 }

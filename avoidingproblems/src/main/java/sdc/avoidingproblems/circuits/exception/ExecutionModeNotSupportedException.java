@@ -6,12 +6,12 @@ package sdc.avoidingproblems.circuits.exception;
  */
 public class ExecutionModeNotSupportedException extends Exception {
 
-   public ExecutionModeNotSupportedException() {
-      super();
-   }
-   
-   public ExecutionModeNotSupportedException(String message){
-      super(message);
-   }
-   
+    public ExecutionModeNotSupportedException() {
+        super();
+    }
+
+    public ExecutionModeNotSupportedException(String message) {
+        super(message);
+    }
+
 }

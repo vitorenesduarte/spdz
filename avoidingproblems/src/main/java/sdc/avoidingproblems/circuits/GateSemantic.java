@@ -11,26 +11,26 @@ import sdc.avoidingproblems.circuits.algebra.PlusFunction;
  */
 public enum GateSemantic {
 
-   PLUS, MULT;
+    PLUS, MULT;
 
-   private static final SecureRandom random = new SecureRandom();
+    private static final SecureRandom random = new SecureRandom();
 
-   public static Function getFunction(GateSemantic semantic) {
-      Function function = null;
-      switch (semantic) {
-         case PLUS:
-            function = new PlusFunction();
-            break;
-         case MULT:
-            function = new MultFunction();
-            break;
-      }
+    public static Function getFunction(GateSemantic semantic) {
+        Function function = null;
+        switch (semantic) {
+            case PLUS:
+                function = new PlusFunction();
+                break;
+            case MULT:
+                function = new MultFunction();
+                break;
+        }
 
-      return function;
-   }
+        return function;
+    }
 
-   public static GateSemantic getRandomGate() {
-      GateSemantic semantic = random.nextBoolean() ? GateSemantic.PLUS : GateSemantic.MULT;
-      return semantic;
-   }
+    public static GateSemantic getRandomGate() {
+        GateSemantic semantic = random.nextBoolean() ? GateSemantic.PLUS : GateSemantic.MULT;
+        return semantic;
+    }
 }
