@@ -29,4 +29,9 @@ public class BatchCheckValues {
     public Map<String, ExtendedRepresentation> getTheirCommit() {
         return theirCommit;
     }
+
+    @Override
+    public String toString() {
+        return "BatchCheckValues{" + "u=" + u + ", myCommit=" + myCommit + ", theirCommit=" + theirCommit + '}';
+    }
 }

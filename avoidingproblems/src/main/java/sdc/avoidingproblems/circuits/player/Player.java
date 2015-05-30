@@ -54,7 +54,7 @@ public class Player extends Thread {
 
     public Player(int UID, String host, int port) {
         this.playerInfo = new PlayerInfo(UID, host, port);
-        inbox = new Inbox(playerInfo);
+        inbox = new Inbox();
         toBeMACChecked = new ArrayList();
     }
 

@@ -30,4 +30,13 @@ public class ExtendedRepresentation {
     public FieldElement getMAC(String playerID) {
         return playersMACShares.get(playerID);
     }
+    
+    public Map<String, FieldElement> getMACShares(){
+        return playersMACShares;
+    }
+
+    @Override
+    public String toString() {
+        return "ExtendedRepresentation{" + "beta=" + beta + ", value=" + value + ", playersMACShares=" + playersMACShares + '}';
+    }
 }

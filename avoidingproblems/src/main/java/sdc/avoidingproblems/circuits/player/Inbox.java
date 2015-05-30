@@ -15,7 +15,6 @@ import sdc.avoidingproblems.circuits.message.Open;
  */
 public class Inbox {
 
-    private final PlayerInfo playerInfo;
     private Integer numberOfOtherPlayers;
     private final Map<Long, List<MultiplicationShare>> multShares;
     private final List<Open> openList; // find better name
@@ -23,8 +22,7 @@ public class Inbox {
     private final Semaphore MULT_DONE;
     private final Semaphore OPEN_DONE;
 
-    public Inbox(PlayerInfo playerInfo) {
-        this.playerInfo = playerInfo;
+    public Inbox() {
         multShares = new HashMap();
         openList = new ArrayList();
         LOCK = new Semaphore(1);
@@ -81,9 +79,4 @@ public class Inbox {
 
         return result;
     }
-
-    private void out(String s) {
-        System.out.println(playerInfo.getUID() + " !!! " + s);
-    }
-
 }

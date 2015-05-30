@@ -19,4 +19,9 @@ public class ExtendedRepresentationWithSum extends ExtendedRepresentation {
     public FieldElement getSum() {
         return sum;
     }
+
+    @Override
+    public String toString() {
+        return "ExtendedRepresentation{" + "beta=" + getBeta() + ", value=" + getValue() + ", sum=" + sum + ", playersMACShares=" + getMACShares() + '}';
+    }
 }

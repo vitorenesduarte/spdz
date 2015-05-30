@@ -1,7 +1,9 @@
 package sdc.avoidingproblems.circuits.player;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import sdc.avoidingproblems.circuits.Circuit;
 import sdc.avoidingproblems.circuits.CircuitGenerator;
 import sdc.avoidingproblems.circuits.algebra.Field;
@@ -10,6 +12,8 @@ import sdc.avoidingproblems.circuits.algebra.BeaverTriple;
 import sdc.avoidingproblems.circuits.algebra.BigIntegerFE;
 import sdc.avoidingproblems.circuits.algebra.FieldElement;
 import sdc.avoidingproblems.circuits.algebra.mac.BatchCheckValues;
+import sdc.avoidingproblems.circuits.algebra.mac.ExtendedRepresentation;
+import sdc.avoidingproblems.circuits.algebra.mac.ExtendedRepresentationWithSum;
 import sdc.avoidingproblems.circuits.algebra.mac.SimpleRepresentation;
 import sdc.avoidingproblems.circuits.exception.ClassNotSupportedException;
 import sdc.avoidingproblems.circuits.exception.ExecutionModeNotSupportedException;
@@ -23,15 +27,16 @@ import sdc.avoidingproblems.circuits.exception.InvalidParamException;
 public class Main {
 
     public static void main(String[] args) throws ExecutionModeNotSupportedException, InterruptedException, ClassNotSupportedException, InvalidParamException {
-        Long MOD = 41L;
-        int NINPUTS = 10000;
-        int NPLAYERS = 3;
-        Field field = new Field(MOD);
-        Class<?> clazz = BigIntegerFE.class;
-        FieldElement fixedMACKey = field.random(clazz);
+        final Long MOD = 41L;
+        final int PORT = 3000;
+        final int NINPUTS = 30000;
+        final int NPLAYERS = 3;
+        final Field field = new Field(MOD);
+        final Class<?> clazz = BigIntegerFE.class;
+        final FieldElement fixedMACKey = field.random(clazz);
 
         // generate a random circuit
-        Circuit circuit = CircuitGenerator.generate(NINPUTS);
+        final Circuit circuit = CircuitGenerator.generate(NINPUTS);
 
         //Jung.preview(circuit);
         //System.out.println(circuit.toString());
@@ -75,9 +80,9 @@ public class Main {
         }
 
         // init all pre processed data
-        BeaverTriples[] preProcessedData = new BeaverTriples[NPLAYERS];
+        BeaverTriples[] beaverTriples = new BeaverTriples[NPLAYERS];
         for (int i = 0; i < NPLAYERS; i++) {
-            preProcessedData[i] = new BeaverTriples();
+            beaverTriples[i] = new BeaverTriples();
         }
 
         // create shares for all multiplication triples previously generated
@@ -86,14 +91,88 @@ public class Main {
             SimpleRepresentation[] bShares = field.createShares(multiplicationTriples[i].getB(), NPLAYERS);
             SimpleRepresentation[] cShares = field.createShares(multiplicationTriples[i].getC(), NPLAYERS);
             for (int j = 0; j < NPLAYERS; j++) {
-                preProcessedData[j].add(new BeaverTriple(aShares[j], bShares[j], cShares[j]));
+                beaverTriples[j].add(new BeaverTriple(aShares[j], bShares[j], cShares[j]));
             }
+        }
+
+        // create betas for all players (this is the u that will be used as random e (e_i = u^i)
+        FieldElement[] betas = new FieldElement[NPLAYERS];
+        for (int i = 0; i < NPLAYERS; i++) {
+            betas[i] = field.random(clazz);
+        }
+
+        // the u
+        FieldElement u = field.random(clazz);
+        FieldElement[] uShares = field.createShares(u, NPLAYERS);
+        // the macs that allow the u to be reliably opened
+        FieldElement[][] uMACs = new FieldElement[NPLAYERS][NPLAYERS];
+        for (int i = 0; i < NPLAYERS; i++) {
+            FieldElement mac = betas[i].mult(u);
+            FieldElement[] macShares = field.createShares(mac, NPLAYERS);
+            for (int j = 0; j < NPLAYERS; j++) {
+                uMACs[i][j] = macShares[j];
+            }
+        }
+
+        // the u_s
+        ExtendedRepresentation[] u_i_s = new ExtendedRepresentation[NPLAYERS];
+        for (int i = 0; i < NPLAYERS; i++) {
+            Map<String, FieldElement> playerToMAC = new HashMap();
+            for (int j = 0; j < NPLAYERS; j++) {
+                playerToMAC.put("localhost:" + (PORT + j), uMACs[j][i]);
+            }
+            ExtendedRepresentation u_i = new ExtendedRepresentation(betas[i], uShares[i], playerToMAC);
+            u_i_s[i] = u_i;
+        }
+
+        // create an extended representation to be used in the commit of each player
+        ExtendedRepresentationWithSum[] myCommit = new ExtendedRepresentationWithSum[NPLAYERS];
+        Map<String, ExtendedRepresentation>[] theirCommit = new Map[NPLAYERS];
+        for (int i = 0; i < NPLAYERS; i++) {
+            theirCommit[i] = new HashMap();
+        }
+        for (int p = 0; p < NPLAYERS; p++) {
+            FieldElement[] betasAgain = new FieldElement[NPLAYERS];
+            for (int i = 0; i < NPLAYERS; i++) {
+                betasAgain[i] = field.random(clazz);
+            }
+
+            FieldElement s = field.random(clazz);
+            FieldElement[] sShares = field.createShares(s, NPLAYERS);
+            FieldElement[][] sMACs = new FieldElement[NPLAYERS][NPLAYERS];
+            for (int i = 0; i < NPLAYERS; i++) {
+                FieldElement mac = betasAgain[i].mult(s);
+                FieldElement[] macShares = field.createShares(mac, NPLAYERS);
+                for (int j = 0; j < NPLAYERS; j++) {
+                    sMACs[i][j] = macShares[j];
+                }
+            }
+
+            for (int i = 0; i < NPLAYERS; i++) {
+                Map<String, FieldElement> playerToMAC = new HashMap();
+                for (int j = 0; j < NPLAYERS; j++) {
+                    playerToMAC.put("localhost:" + (PORT + j), sMACs[j][i]);
+                }
+                if (i == p) {
+                    myCommit[i] = new ExtendedRepresentationWithSum(betasAgain[i], sShares[i], s, playerToMAC);
+                } else {
+                    ExtendedRepresentation s_i = new ExtendedRepresentation(betasAgain[i], sShares[i], playerToMAC);
+                    theirCommit[i].put("localhost" + (PORT + p), s_i);
+                }
+            }
+
+        }
+
+        // create the batch check values for all players
+        BatchCheckValues[] batchCheckValues = new BatchCheckValues[NPLAYERS];
+        for (int i = 0; i < NPLAYERS; i++) {
+            batchCheckValues[i] = new BatchCheckValues(u_i_s[i], myCommit[i], theirCommit[i]);
         }
 
         Player[] players = new Player[NPLAYERS];
         ArrayList<PlayerInfo> playersID = new ArrayList();
         for (int i = 0; i < NPLAYERS; i++) {
-            players[i] = new Player(i, "localhost", 3000 + i);
+            players[i] = new Player(i, "localhost", PORT + i);
             playersID.add(players[i].getInfo());
         }
 
@@ -102,9 +181,9 @@ public class Main {
             players[i].setMOD(MOD);
 
             players[i].setInputs(inputShares[i].get());
-            players[i].setBeaverTriples(preProcessedData[i]);
-            
-            players[i].setBatchCheckValues(new BatchCheckValues(null, null, null));
+            players[i].setBeaverTriples(beaverTriples[i]);
+
+            players[i].setBatchCheckValues(batchCheckValues[i]);
 
             ArrayList<PlayerInfo> playersIDCopy = new ArrayList(playersID);
             playersIDCopy.remove(players[i].getInfo());
