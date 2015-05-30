@@ -21,4 +21,9 @@ public class Open extends Message {
     public Long getMAC() {
         return MAC;
     }
+
+    @Override
+    public String toString() {
+        return "Open{" + "value=" + value + ", MAC=" + MAC + '}';
+    }
 }

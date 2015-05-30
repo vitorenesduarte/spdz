@@ -19,11 +19,11 @@ public interface FieldElement {
 
     FieldElement mult(FieldElement fe);
 
-    FieldElement pow(Integer power);
+    FieldElement pow(Long power);
 
     int compare(FieldElement fe);
 
     @Override
     public String toString();
-
+    
 }

@@ -22,6 +22,7 @@ import sdc.avoidingproblems.circuits.algebra.FieldElement;
 import sdc.avoidingproblems.circuits.algebra.Function;
 import sdc.avoidingproblems.circuits.algebra.Util;
 import sdc.avoidingproblems.circuits.algebra.mac.BatchCheckValues;
+import sdc.avoidingproblems.circuits.algebra.mac.ExtendedRepresentation;
 import sdc.avoidingproblems.circuits.algebra.mac.SimpleRepresentation;
 import sdc.avoidingproblems.circuits.algebra.mac.ToBeMACChecked;
 import sdc.avoidingproblems.circuits.exception.ClassNotSupportedException;
@@ -194,9 +195,39 @@ public class Player extends Thread {
         return result;
     }
 
-    private Boolean doBatchCheck() {
-
+    private Boolean doBatchCheck() throws InterruptedException {
+        Long u = open(batchCheckValues.getU());
+        
         return true;
+    }
+
+    private Long open(ExtendedRepresentation value) throws InterruptedException {
+        for (PlayerInfo player : players) {
+            String key = player.getHost() + ":" + player.getPort();
+            FieldElement mac = value.getMAC(key);
+            Open open = new Open(value.getValue().longValue(), mac.longValue());
+            String message = MessageManager.createMessage(open);
+            sendToPlayer(message, player);
+        }
+
+        List<Open> openList = inbox.waitForOpen();
+        FieldElement openedValue = value.getValue();
+        FieldElement macToBeChecked = value.getMAC(playerInfo.getHost() + ":" + playerInfo.getPort());
+        for (Open open : openList) {
+            openedValue = openedValue.add(open.getValue());
+            macToBeChecked = macToBeChecked.add(open.getMAC());
+        }
+
+        FieldElement mac = value.getBeta().mult(openedValue);
+        Long result = null;
+        if (mac.longValue().equals(macToBeChecked.longValue())) {
+            result = openedValue.longValue();
+        } else {
+            out("MAC DOES NOT CHECK!");
+        }
+
+        return result;
+
     }
 
     private void openFinalResult(FieldElement result) throws InterruptedException {
@@ -207,6 +238,19 @@ public class Player extends Thread {
             result = result.add(open.getValue());
         }
         out(result.longValue().toString());
+    }
+
+    private void sendToPlayer(String message, PlayerInfo player) {
+        try {
+            try (
+                    Socket socket = new Socket(player.getHost(), player.getPort());
+                    PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
+
+                out.write(message);
+            }
+        } catch (IOException ex) {
+            logger.log(Level.SEVERE, null, ex);
+        }
     }
 
     private void sendToPlayers(String message) {
@@ -220,7 +264,6 @@ public class Player extends Thread {
                 }
             }
         } catch (IOException ex) {
-            logger.info(message);
             logger.log(Level.SEVERE, null, ex);
         }
     }

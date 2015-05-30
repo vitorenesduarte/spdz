@@ -29,7 +29,7 @@ public class Main {
     public static void main(String[] args) throws ExecutionModeNotSupportedException, InterruptedException, ClassNotSupportedException, InvalidParamException {
         final Long MOD = 41L;
         final int PORT = 3000;
-        final int NINPUTS = 30000;
+        final int NINPUTS = 10;
         final int NPLAYERS = 3;
         final Field field = new Field(MOD);
         final Class<?> clazz = BigIntegerFE.class;
