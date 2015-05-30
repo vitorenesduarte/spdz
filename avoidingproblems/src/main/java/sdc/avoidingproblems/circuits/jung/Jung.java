@@ -38,8 +38,7 @@ public class Jung {
     private static int MAX_LEVEL = 0;
 
     public static void main(String[] args) {
-        CircuitGenerator generator = new CircuitGenerator();
-        Circuit circuit = generator.generate(8);
+        Circuit circuit = CircuitGenerator.generate(8);
         preview(circuit);
     }
 
@@ -58,7 +57,7 @@ public class Jung {
 
         initPositionsPerLevel(numberOfInputs - 1, numberOfInputs, x);
 
-        List<Gate> gates = new ArrayList(circuit.getGates().values());
+        List<Gate> gates = circuit.getGates();
         for (int i = 0; i < circuit.getGateCount(); i++) {
             Gate gate = gates.get(i);
             List<Integer> inputEdges = gate.getInputEdges();

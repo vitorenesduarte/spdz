@@ -15,7 +15,7 @@ public class CircuitGenerator {
 
     public static Circuit generate(Integer NINPUTS) {
         SecureRandom random = new SecureRandom();
-        Map<Integer, Gate> gates = new HashMap();
+        List<Gate> gates = new ArrayList();
         List<Integer> notOccupied = new ArrayList();
 
         Integer edgeCount = NINPUTS;
@@ -39,7 +39,7 @@ public class CircuitGenerator {
             inputEdges.add(edgeOne);
             inputEdges.add(edgeTwo);
             Gate gate = new Gate(semantic, inputEdges);
-            gates.put(edgeCount, gate);
+            gates.add(gate);
         }
 
         Circuit circuit = new Circuit(NINPUTS, gates);

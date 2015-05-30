@@ -23,7 +23,7 @@ public class Main {
 
     public static void main(String[] args) throws ExecutionModeNotSupportedException, InterruptedException, ClassNotSupportedException, InvalidParamException {
         Long MOD = 41L;
-        int NINPUTS = 100;
+        int NINPUTS = 10000;
         int NPLAYERS = 3;
         Field field = new Field(MOD);
         Class<?> clazz = BigIntegerFE.class;
@@ -35,7 +35,7 @@ public class Main {
         Circuit circuit = CircuitGenerator.generate(NINPUTS);
 
         //Jung.preview(circuit);
-        System.out.println(circuit.toString());
+        //System.out.println(circuit.toString());
         int numberOfCommunications = NPLAYERS * (NPLAYERS - 1) * circuit.getMultiplicationGatesCount();
         System.out.println("Number of comunications : " + numberOfCommunications);
         System.out.println("Number of players : " + NPLAYERS);
@@ -53,7 +53,7 @@ public class Main {
         System.out.println("RESULT: " + new SimpleRepresentation(singePartyEvalResult, singePartyEvalResult.mult(fixedMACKey)));
 
         System.out.println("MULTI-PARTY:");
-      // create shares for all the circuit's inputs
+        // create shares for all the circuit's inputs
         // number of shares == number of players
         SharedInputs[] inputShares = new SharedInputs[NPLAYERS];
         for (int i = 0; i < NPLAYERS; i++) {
@@ -92,10 +92,10 @@ public class Main {
         }
 
         Player[] players = new Player[NPLAYERS];
-        ArrayList<PlayerID> playersID = new ArrayList();
+        ArrayList<PlayerInfo> playersID = new ArrayList();
         for (int i = 0; i < NPLAYERS; i++) {
             players[i] = new Player(i, "localhost", 3000 + i, sumAll);
-            playersID.add(players[i].getID());
+            playersID.add(players[i].getInfo());
         }
 
         for (int i = 0; i < NPLAYERS; i++) {
@@ -105,8 +105,8 @@ public class Main {
             players[i].setInputs(inputShares[i].get());
             players[i].setPreProcessedData(preProcessedData[i]);
 
-            ArrayList<PlayerID> playersIDCopy = new ArrayList(playersID);
-            playersIDCopy.remove(players[i].getID());
+            ArrayList<PlayerInfo> playersIDCopy = new ArrayList(playersID);
+            playersIDCopy.remove(players[i].getInfo());
             players[i].setPlayers(playersIDCopy);
         }
 

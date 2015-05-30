@@ -17,9 +17,9 @@ import sdc.avoidingproblems.circuits.exception.InvalidParamException;
 public class Circuit {
 
     private final Integer inputSize;
-    private final Map<Integer, Gate> gates;
+    private final List<Gate> gates;
 
-    public Circuit(Integer inputSize, Map<Integer, Gate> gates) {
+    public Circuit(Integer inputSize, List<Gate> gates) {
         this.gates = gates;
         this.inputSize = inputSize;
     }
@@ -28,7 +28,7 @@ public class Circuit {
         return inputSize;
     }
 
-    public Map<Integer, Gate> getGates() {
+    public List<Gate> getGates() {
         return gates;
     }
 
@@ -38,7 +38,7 @@ public class Circuit {
 
     public int getMultiplicationGatesCount() {
         int count = 0;
-        for (Gate gate : gates.values()) {
+        for (Gate gate : gates) {
             if (gate.getSemantic().equals(GateSemantic.MULT)) {
                 count++;
             }
@@ -52,7 +52,7 @@ public class Circuit {
         for (FieldElement fe : inputs) {
             values.add(new SimpleRepresentation(fe, fe)); // fake fake fake
         }
-        for (Gate gate : gates.values()) {
+        for (Gate gate : gates) {
             List<Integer> inputEdges = gate.getInputEdges();
             SimpleRepresentation[] params = new SimpleRepresentation[inputEdges.size()];
             for (int j = 0; j < inputEdges.size(); j++) {
@@ -69,12 +69,12 @@ public class Circuit {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         int multiplicationCount = 0;
-        for (Integer gateID : gates.keySet()) {
-            Gate gate = gates.get(gateID);
+        int gateCount = gates.size();
+        for (Gate gate: gates) {
             if (gate.getSemantic().equals(GateSemantic.MULT)) {
                 sb.append("[").append(multiplicationCount++).append("]");
             }
-            sb.append("\t").append(gateID).append(" : ").append(gate.toString()).append("\n");
+            sb.append("\t").append(++gateCount).append(" : ").append(gate.toString()).append("\n");
         }
         return sb.toString();
     }

@@ -11,9 +11,6 @@ import sdc.avoidingproblems.circuits.exception.ExecutionModeNotSupportedExceptio
  */
 public class MultFunction implements Function {
 
-    public MultFunction() {
-    }
-
     @Override
     public SimpleRepresentation apply(ExecutionMode mode, BeaverTriple triple, FieldElement d, FieldElement e, SimpleRepresentation... params) throws InvalidParamException, ExecutionModeNotSupportedException {
         switch (mode) {
@@ -39,6 +36,7 @@ public class MultFunction implements Function {
 
                 // [xy] = [c] + e[b] + d[a] + d[e]
                 // [xy] = [c] + e[b] + d[a] + [d]e
+                //return dShare.mult(e).add(a.mult(e)).add(b.mult(d)).add(c);
                 return dShare.mult(e).add(a.mult(e)).add(b.mult(d)).add(c);
             default:
                 throw new ExecutionModeNotSupportedException();

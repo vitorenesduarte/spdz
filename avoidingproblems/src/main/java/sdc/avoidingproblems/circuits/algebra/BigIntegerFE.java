@@ -27,6 +27,13 @@ public class BigIntegerFE implements FieldElement {
         result = result.mod(MOD);
         return new BigIntegerFE(result.longValue(), MOD.longValue());
     }
+    
+    @Override
+    public FieldElement add(Long value){
+        BigInteger result = this.elem.add(BigInteger.valueOf(value));
+        result = result.mod(MOD);
+        return new BigIntegerFE(result.longValue(), MOD.longValue());
+    }
 
     @Override
     public FieldElement sub(FieldElement fe) {

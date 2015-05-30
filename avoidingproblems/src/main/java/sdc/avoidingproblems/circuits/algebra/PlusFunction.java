@@ -11,9 +11,6 @@ import sdc.avoidingproblems.circuits.exception.InvalidParamException;
  */
 public class PlusFunction implements Function {
 
-    public PlusFunction() {
-    }
-
     @Override
     public SimpleRepresentation apply(ExecutionMode mode, BeaverTriple triple, FieldElement d, FieldElement e, SimpleRepresentation... params) throws InvalidParamException, ExecutionModeNotSupportedException {
         if (params.length != 2) {

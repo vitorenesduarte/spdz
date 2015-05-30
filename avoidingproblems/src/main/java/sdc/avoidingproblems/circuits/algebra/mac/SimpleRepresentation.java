@@ -25,22 +25,22 @@ public class SimpleRepresentation { // ValueAndMAC before
     }
 
     public SimpleRepresentation add(SimpleRepresentation r) {
-        SimpleRepresentation result = new SimpleRepresentation(this.value.add(r.getValue()), this.MAC.add(r.getMAC()));
+        SimpleRepresentation result = new SimpleRepresentation(value.add(r.getValue()), MAC.add(r.getMAC()));
         return result;
     }
 
     public SimpleRepresentation sub(SimpleRepresentation r) {
-        SimpleRepresentation result = new SimpleRepresentation(this.value.sub(r.getValue()), this.MAC.sub(r.getMAC()));
+        SimpleRepresentation result = new SimpleRepresentation(value.sub(r.getValue()), MAC.sub(r.getMAC()));
         return result;
     }
 
     public SimpleRepresentation mult(SimpleRepresentation r) {
-        SimpleRepresentation result = new SimpleRepresentation(this.value.mult(r.getValue()), this.MAC.mult(r.getMAC()));
+        SimpleRepresentation result = new SimpleRepresentation(value.mult(r.getValue()), MAC.mult(r.getMAC()));
         return result;
     }
 
     public SimpleRepresentation mult(FieldElement fe) {
-        SimpleRepresentation result = new SimpleRepresentation(this.value.mult(fe), this.MAC.mult(fe));
+        SimpleRepresentation result = new SimpleRepresentation(value.mult(fe), MAC.mult(fe));
         return result;
     }
 

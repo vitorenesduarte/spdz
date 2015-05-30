@@ -12,6 +12,8 @@ public interface FieldElement {
     Long longValue();
 
     FieldElement add(FieldElement fe);
+    
+    FieldElement add(Long value);
 
     FieldElement sub(FieldElement fe);
 

@@ -4,19 +4,19 @@ package sdc.avoidingproblems.circuits.player;
  *
  * @author Vitor Enes (vitorenesduarte ~at~ gmail ~dot~ com)
  */
-public class PlayerID {
+public class PlayerInfo {
 
-    private final String UID;
+    private final Integer UID;
     private final String host;
-    private final int port;
+    private final Integer port;
 
-    public PlayerID(String UID, String host, int port) {
+    public PlayerInfo(Integer UID, String host, Integer port) {
         this.UID = UID;
         this.host = host;
         this.port = port;
     }
 
-    public String getUID() {
+    public Integer getUID() {
         return UID;
     }
 
@@ -24,7 +24,7 @@ public class PlayerID {
         return host;
     }
 
-    public int getPort() {
+    public Integer getPort() {
         return port;
     }
 
@@ -37,9 +37,16 @@ public class PlayerID {
             return false;
         }
 
-        PlayerID playerID = (PlayerID) o;
+        PlayerInfo playerID = (PlayerInfo) o;
 
         return UID.equals(playerID.getUID());
     }
+
+    @Override
+    public String toString() {
+        return "PlayerInfo{" + "UID=" + UID + ", host=" + host + ", port=" + port + '}';
+    }
+    
+    
 
 }

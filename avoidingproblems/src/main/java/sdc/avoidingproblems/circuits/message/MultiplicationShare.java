@@ -4,7 +4,7 @@ package sdc.avoidingproblems.circuits.message;
  *
  * @author Vitor Enes (vitorenesduarte ~at~ gmail ~dot~ com)
  */
-public class MultiplicationShare {
+public class MultiplicationShare extends Message {
 
     private final Long multID;
     private final Long d;
@@ -30,6 +30,12 @@ public class MultiplicationShare {
 
     @Override
     public String toString() {
-        return "MultiplicationShare{" + "multID=" + multID + ", d=" + d + ", e=" + e + '}';
+        return multID + ":{d=" + d + ", e=" + e + '}';
+    }
+    
+    @Override
+    public MultiplicationShare clone(){
+        MultiplicationShare clone = new MultiplicationShare(multID, d, e);
+        return clone;
     }
 }
