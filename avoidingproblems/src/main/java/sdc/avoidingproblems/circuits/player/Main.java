@@ -5,10 +5,11 @@ import java.util.List;
 import sdc.avoidingproblems.circuits.Circuit;
 import sdc.avoidingproblems.circuits.CircuitGenerator;
 import sdc.avoidingproblems.circuits.algebra.Field;
-import sdc.avoidingproblems.circuits.PreProcessedData;
+import sdc.avoidingproblems.circuits.BeaverTriples;
 import sdc.avoidingproblems.circuits.algebra.BeaverTriple;
 import sdc.avoidingproblems.circuits.algebra.BigIntegerFE;
 import sdc.avoidingproblems.circuits.algebra.FieldElement;
+import sdc.avoidingproblems.circuits.algebra.mac.BatchCheckValues;
 import sdc.avoidingproblems.circuits.algebra.mac.SimpleRepresentation;
 import sdc.avoidingproblems.circuits.exception.ClassNotSupportedException;
 import sdc.avoidingproblems.circuits.exception.ExecutionModeNotSupportedException;
@@ -28,8 +29,6 @@ public class Main {
         Field field = new Field(MOD);
         Class<?> clazz = BigIntegerFE.class;
         FieldElement fixedMACKey = field.random(clazz);
-
-        List<SimpleRepresentation> sumAll = new ArrayList(NPLAYERS);
 
         // generate a random circuit
         Circuit circuit = CircuitGenerator.generate(NINPUTS);
@@ -76,9 +75,9 @@ public class Main {
         }
 
         // init all pre processed data
-        PreProcessedData[] preProcessedData = new PreProcessedData[NPLAYERS];
+        BeaverTriples[] preProcessedData = new BeaverTriples[NPLAYERS];
         for (int i = 0; i < NPLAYERS; i++) {
-            preProcessedData[i] = new PreProcessedData();
+            preProcessedData[i] = new BeaverTriples();
         }
 
         // create shares for all multiplication triples previously generated
@@ -94,7 +93,7 @@ public class Main {
         Player[] players = new Player[NPLAYERS];
         ArrayList<PlayerInfo> playersID = new ArrayList();
         for (int i = 0; i < NPLAYERS; i++) {
-            players[i] = new Player(i, "localhost", 3000 + i, sumAll);
+            players[i] = new Player(i, "localhost", 3000 + i);
             playersID.add(players[i].getInfo());
         }
 
@@ -103,7 +102,9 @@ public class Main {
             players[i].setMOD(MOD);
 
             players[i].setInputs(inputShares[i].get());
-            players[i].setPreProcessedData(preProcessedData[i]);
+            players[i].setBeaverTriples(preProcessedData[i]);
+            
+            players[i].setBatchCheckValues(new BatchCheckValues(null, null, null));
 
             ArrayList<PlayerInfo> playersIDCopy = new ArrayList(playersID);
             playersIDCopy.remove(players[i].getInfo());
@@ -118,12 +119,6 @@ public class Main {
             players[i].join();
         }
 
-        SimpleRepresentation all = sumAll.get(0);
-        for (int i = 1; i < NPLAYERS; i++) {
-            all = all.add(sumAll.get(i));
-        }
-
-        System.out.println("RESULT: " + all);
         System.out.println("TOTAL TIME: " + (System.currentTimeMillis() - start));
     }
 }

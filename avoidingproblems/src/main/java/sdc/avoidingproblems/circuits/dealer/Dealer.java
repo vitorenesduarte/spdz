@@ -11,7 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import sdc.avoidingproblems.circuits.Circuit;
 import sdc.avoidingproblems.circuits.CircuitGenerator;
-import sdc.avoidingproblems.circuits.PreProcessedData;
+import sdc.avoidingproblems.circuits.BeaverTriples;
 import sdc.avoidingproblems.circuits.algebra.BeaverTriple;
 import sdc.avoidingproblems.circuits.algebra.BigIntegerFE;
 import sdc.avoidingproblems.circuits.algebra.Field;
@@ -88,9 +88,9 @@ public class Dealer {
                 }
 
                 // init all pre processed data
-                PreProcessedData[] preProcessedData = new PreProcessedData[NPLAYERS];
+                BeaverTriples[] preProcessedData = new BeaverTriples[NPLAYERS];
                 for (int i = 0; i < NPLAYERS; i++) {
-                    preProcessedData[i] = new PreProcessedData();
+                    preProcessedData[i] = new BeaverTriples();
                 }
 
                 // create shares for all multiplication triples previously generated

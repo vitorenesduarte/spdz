@@ -8,15 +8,15 @@ import sdc.avoidingproblems.circuits.algebra.BeaverTriple;
  *
  * @author Vitor Enes (vitorenesduarte ~at~ gmail ~dot~ com)
  */
-public class PreProcessedData {
+public class BeaverTriples {
 
     private final List<BeaverTriple> multiplicationTriples;
 
-    public PreProcessedData() {
+    public BeaverTriples() {
         this.multiplicationTriples = new ArrayList<>();
     }
 
-    public PreProcessedData(List<BeaverTriple> multiplicationTriples) {
+    public BeaverTriples(List<BeaverTriple> multiplicationTriples) {
         this.multiplicationTriples = multiplicationTriples;
     }
 

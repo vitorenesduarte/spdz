@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.concurrent.Semaphore;
 import sdc.avoidingproblems.circuits.message.Message;
 import sdc.avoidingproblems.circuits.message.MultiplicationShare;
+import sdc.avoidingproblems.circuits.message.Open;
 
 /**
  *
@@ -15,29 +16,24 @@ import sdc.avoidingproblems.circuits.message.MultiplicationShare;
 public class Inbox {
 
     private final PlayerInfo playerInfo;
-    private final Map<Long, List<MultiplicationShare>> inbox;
-    private final Semaphore DONE;
+    private Integer numberOfOtherPlayers;
+    private final Map<Long, List<MultiplicationShare>> multShares;
+    private final List<Open> openList; // find better name
     private final Semaphore LOCK;
-    private Integer numberOfShares;
+    private final Semaphore MULT_DONE;
+    private final Semaphore OPEN_DONE;
 
     public Inbox(PlayerInfo playerInfo) {
         this.playerInfo = playerInfo;
-        numberOfShares = -1;
-        inbox = new HashMap();
-        DONE = new Semaphore(0);
+        multShares = new HashMap();
+        openList = new ArrayList();
         LOCK = new Semaphore(1);
+        MULT_DONE = new Semaphore(0);
+        OPEN_DONE = new Semaphore(0);
     }
 
-    public List<MultiplicationShare> waitForMultiplicationShares(Long multiplicationImWaitingFor, Integer numberOfShares) throws InterruptedException {
-        LOCK.acquire();
-        this.numberOfShares = numberOfShares;
-        LOCK.release();
-        DONE.acquire();
-        LOCK.acquire();
-        List<MultiplicationShare> result = new ArrayList(inbox.get(multiplicationImWaitingFor));
-        inbox.remove(multiplicationImWaitingFor);
-        LOCK.release();
-        return result;
+    public void setNumberOfOtherPlayer(Integer numberOfOtherPlayers) {
+        this.numberOfOtherPlayers = numberOfOtherPlayers;
     }
 
     public void addMessage(Message message) throws InterruptedException {
@@ -45,15 +41,20 @@ public class Inbox {
         if (message instanceof MultiplicationShare) {
             MultiplicationShare mShare = (MultiplicationShare) message;
             Long multID = mShare.getMultID();
-            if (inbox.containsKey(multID)) {
-                inbox.get(multID).add(mShare);
-                if (inbox.get(multID).size() == numberOfShares) {
-                    DONE.release();
+            if (multShares.containsKey(multID)) {
+                multShares.get(multID).add(mShare);
+                if (multShares.get(multID).size() == numberOfOtherPlayers) {
+                    MULT_DONE.release();
                 }
             } else {
                 List<MultiplicationShare> list = new ArrayList();
                 list.add(mShare);
-                inbox.put(multID, list);
+                multShares.put(multID, list);
+            }
+        } else if (message instanceof Open) {
+            openList.add((Open) message);
+            if (openList.size() == numberOfOtherPlayers) {
+                OPEN_DONE.release();
             }
         } else {
             System.out.println("MESSAGE NOT SUPPORTED YET");
@@ -61,7 +62,28 @@ public class Inbox {
         LOCK.release();
     }
 
+    public List<MultiplicationShare> waitForMultiplicationShares(Long multiplicationImWaitingFor) throws InterruptedException {
+        MULT_DONE.acquire();
+        LOCK.acquire();
+        List<MultiplicationShare> result = new ArrayList(multShares.get(multiplicationImWaitingFor));
+        multShares.remove(multiplicationImWaitingFor);
+        LOCK.release();
+
+        return result;
+    }
+
+    public List<Open> waitForOpen() throws InterruptedException {
+        OPEN_DONE.acquire();
+        LOCK.acquire();
+        List<Open> result = new ArrayList(openList);
+        openList.clear();
+        LOCK.release();
+
+        return result;
+    }
+
     private void out(String s) {
         System.out.println(playerInfo.getUID() + " !!! " + s);
     }
+
 }

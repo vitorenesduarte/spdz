@@ -16,11 +16,12 @@ import sdc.avoidingproblems.circuits.Gate;
 import sdc.avoidingproblems.circuits.GateSemantic;
 import static sdc.avoidingproblems.circuits.GateSemantic.MULT;
 import static sdc.avoidingproblems.circuits.GateSemantic.PLUS;
-import sdc.avoidingproblems.circuits.PreProcessedData;
+import sdc.avoidingproblems.circuits.BeaverTriples;
 import sdc.avoidingproblems.circuits.algebra.BeaverTriple;
 import sdc.avoidingproblems.circuits.algebra.FieldElement;
 import sdc.avoidingproblems.circuits.algebra.Function;
 import sdc.avoidingproblems.circuits.algebra.Util;
+import sdc.avoidingproblems.circuits.algebra.mac.BatchCheckValues;
 import sdc.avoidingproblems.circuits.algebra.mac.SimpleRepresentation;
 import sdc.avoidingproblems.circuits.algebra.mac.ToBeMACChecked;
 import sdc.avoidingproblems.circuits.exception.ClassNotSupportedException;
@@ -28,6 +29,7 @@ import sdc.avoidingproblems.circuits.exception.InvalidParamException;
 import sdc.avoidingproblems.circuits.exception.OperationNotSupportedException;
 import sdc.avoidingproblems.circuits.message.MessageManager;
 import sdc.avoidingproblems.circuits.message.MultiplicationShare;
+import sdc.avoidingproblems.circuits.message.Open;
 
 /**
  *
@@ -44,15 +46,14 @@ public class Player extends Thread {
     private Long MOD;
     private List<PlayerInfo> players;
     private Integer NUMBER_OF_OTHER_PLAYERS;
-    private PreProcessedData preProcessedData;
-    private final List<SimpleRepresentation> sumAll;
+    private BeaverTriples beaverTriples;
+    private BatchCheckValues batchCheckValues;
 
     private final Inbox inbox;
     private final List<ToBeMACChecked> toBeMACChecked;
 
-    public Player(int UID, String host, int port, List<SimpleRepresentation> sumAll) {
+    public Player(int UID, String host, int port) {
         this.playerInfo = new PlayerInfo(UID, host, port);
-        this.sumAll = sumAll;
         inbox = new Inbox(playerInfo);
         toBeMACChecked = new ArrayList();
     }
@@ -73,8 +74,8 @@ public class Player extends Thread {
         this.MOD = MOD;
     }
 
-    public void setPreProcessedData(PreProcessedData preProcessedData) {
-        this.preProcessedData = preProcessedData;
+    public void setBeaverTriples(BeaverTriples beaverTriples) {
+        this.beaverTriples = beaverTriples;
     }
 
     public void setPlayers(List<PlayerInfo> otherPlayers) {
@@ -82,12 +83,16 @@ public class Player extends Thread {
         this.NUMBER_OF_OTHER_PLAYERS = otherPlayers.size();
     }
 
+    public void setBatchCheckValues(BatchCheckValues batchCheckValues) {
+        this.batchCheckValues = batchCheckValues;
+    }
+
     @Override
     public void run() {
         try {
             checkParams();
-            checkPreProcessedData();
-            checkPlayers();
+
+            inbox.setNumberOfOtherPlayer(NUMBER_OF_OTHER_PLAYERS);
             InboxReader reader = new InboxReader(playerInfo.getPort(), inbox);
             reader.start();
             Thread.sleep(1000);
@@ -107,7 +112,7 @@ public class Player extends Thread {
                 switch (semantic) {
                     case MULT:
                         countDistributedMultiplications++;
-                        result = evalDistributedMult(params[0], params[1], preProcessedData.consume());
+                        result = evalDistributedMult(params[0], params[1], beaverTriples.consume());
                         break;
                     case PLUS:
                         result = GateSemantic.getFunction(semantic).apply(LOCAL, null, null, null, params);
@@ -117,17 +122,16 @@ public class Player extends Thread {
                 }
                 edgesValues.add(result);
             }
-
-            SimpleRepresentation result = edgesValues.get(edgesValues.size() - 1);
-            sumAll.add(result);
-            
-            out("RES : " + result);
+            Boolean checked = doBatchCheck();
+            if (checked) {
+                openFinalResult(edgesValues.get(edgesValues.size() - 1).getValue());
+            }
         } catch (InvalidParamException | InvalidPlayersException | InterruptedException | ClassNotSupportedException | ExecutionModeNotSupportedException | OperationNotSupportedException ex) {
             logger.log(Level.SEVERE, null, ex);
         }
     }
 
-    private void checkParams() throws InvalidParamException {
+    private void checkParams() throws InvalidParamException, InvalidPlayersException {
         if (circuit == null) {
             throw new InvalidParamException("Circuit Not Found");
         }
@@ -140,15 +144,12 @@ public class Player extends Thread {
         if (MOD == null) {
             throw new InvalidParamException("MOD Not Found");
         }
-    }
-
-    private void checkPreProcessedData() throws InvalidParamException {
-        if (preProcessedData == null) {
-            throw new InvalidParamException("Pre Processed Data Not Found");
+        if (beaverTriples == null) {
+            throw new InvalidParamException("Beaver Triples Not Found");
         }
-    }
-
-    private void checkPlayers() throws InvalidPlayersException, InvalidParamException {
+        if (batchCheckValues == null) {
+            throw new InvalidParamException("Batch Check Values Not Found");
+        }
         if (players == null) {
             throw new InvalidParamException("Players Not Found");
         }
@@ -174,8 +175,8 @@ public class Player extends Thread {
         String message = MessageManager.createMessage(new MultiplicationShare(countDistributedMultiplications, dShared.getValue().longValue(), eShared.getValue().longValue()));
         sendToPlayers(message);
 
-        List<MultiplicationShare> messages = inbox.waitForMultiplicationShares(countDistributedMultiplications, NUMBER_OF_OTHER_PLAYERS);
-        if(messages.size() != NUMBER_OF_OTHER_PLAYERS){
+        List<MultiplicationShare> messages = inbox.waitForMultiplicationShares(countDistributedMultiplications);
+        if (messages.size() != NUMBER_OF_OTHER_PLAYERS) {
             out("SOMETHING IS WRONG : " + messages);
         }
         FieldElement dOpened = Util.getFieldElementInstance(dShared.getValue().getClass(), dShared.getValue().longValue(), MOD);
@@ -191,6 +192,21 @@ public class Player extends Thread {
         Function f = GateSemantic.getFunction(MULT);
         SimpleRepresentation result = f.apply(DISTRIBUTED, triple, dOpened, eOpened, dShared);
         return result;
+    }
+
+    private Boolean doBatchCheck() {
+
+        return true;
+    }
+
+    private void openFinalResult(FieldElement result) throws InterruptedException {
+        String message = MessageManager.createMessage(new Open(result.longValue(), 0L));
+        sendToPlayers(message);
+        List<Open> openList = inbox.waitForOpen();
+        for (Open open : openList) {
+            result = result.add(open.getValue());
+        }
+        out(result.longValue().toString());
     }
 
     private void sendToPlayers(String message) {
