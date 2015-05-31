@@ -22,6 +22,6 @@ public class ExtendedRepresentationWithSum extends ExtendedRepresentation {
 
     @Override
     public String toString() {
-        return "ExtendedRepresentation{" + "beta=" + getBeta() + ", value=" + getValue() + ", sum=" + sum + ", playersMACShares=" + getMACShares() + '}';
+        return "ExtendedRepresentationWithSum{" + "beta=" + getBeta() + ", value=" + getValue() + ", sum=" + sum + ", playersMACShares=" + getMACShares() + '}';
     }
 }

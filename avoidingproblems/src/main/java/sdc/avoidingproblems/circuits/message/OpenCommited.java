@@ -4,14 +4,16 @@ package sdc.avoidingproblems.circuits.message;
  *
  * @author Vitor Enes (vitorenesduarte ~at~ gmail ~dot~ com)
  */
-public class Commit extends Message {
+public class OpenCommited extends Message {
 
     private final String player; // host:port
     private final Long value;
+    private final Long MAC;
 
-    public Commit(String player, Long value) {
+    public OpenCommited(String player, Long value, Long MAC) {
         this.player = player;
         this.value = value;
+        this.MAC = MAC;
     }
 
     public String getPlayer() {
@@ -22,8 +24,12 @@ public class Commit extends Message {
         return value;
     }
 
+    public Long getMAC() {
+        return MAC;
+    }
+
     @Override
     public String toString() {
-        return "Commit{" + "player=" + player + ", value=" + value + '}';
+        return "OpenCommited{" + "player=" + player + ", value=" + value + ", MAC=" + MAC + '}';
     }
 }

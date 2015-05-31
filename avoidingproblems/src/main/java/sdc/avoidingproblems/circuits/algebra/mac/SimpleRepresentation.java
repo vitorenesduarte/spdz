@@ -44,6 +44,11 @@ public class SimpleRepresentation { // ValueAndMAC before
         return result;
     }
 
+    public SimpleRepresentation pow(Integer power) {
+        SimpleRepresentation result = new SimpleRepresentation(value.pow(power), MAC.pow(power));
+        return result;
+    }
+
     @Override
     public String toString() {
         return "SimpleRepresentation{" + "value=" + value + ", MAC=" + MAC + '}';

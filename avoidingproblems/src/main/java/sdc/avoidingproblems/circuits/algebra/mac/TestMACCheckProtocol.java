@@ -174,22 +174,22 @@ public class TestMACCheckProtocol {
             // ...
             // both will check and now both know the value of u
             // P0
-            SimpleRepresentation yP0 = dFstP0.mult(u.pow(0L))
-                    .add(eFstP0.mult(u.pow(1L)))
-                    .add(dSndP0.mult(u.pow(2L)))
-                    .add(eSndP0.mult(u.pow(3L)));
+            SimpleRepresentation yP0 = dFstP0.mult(u.pow(0))
+                    .add(eFstP0.mult(u.pow(1)))
+                    .add(dSndP0.mult(u.pow(2)))
+                    .add(eSndP0.mult(u.pow(3)));
 
             // P1
-            SimpleRepresentation yP1 = dFstP1.mult(u.pow(0L))
-                    .add(eFstP1.mult(u.pow(1L)))
-                    .add(dSndP1.mult(u.pow(2L)))
-                    .add(eSndP1.mult(u.pow(3L)));
+            SimpleRepresentation yP1 = dFstP1.mult(u.pow(0))
+                    .add(eFstP1.mult(u.pow(1)))
+                    .add(dSndP1.mult(u.pow(2)))
+                    .add(eSndP1.mult(u.pow(3)));
 
             // BOTH
-            FieldElement y_ = dFst.mult(u.pow(0L))
-                    .add(eFst.mult(u.pow(1L)))
-                    .add(dSnd.mult(u.pow(2L)))
-                    .add(eSnd.mult(u.pow(3L)));
+            FieldElement y_ = dFst.mult(u.pow(0))
+                    .add(eFst.mult(u.pow(1)))
+                    .add(dSnd.mult(u.pow(2)))
+                    .add(eSnd.mult(u.pow(3)));
 
             // P0
             FieldElement d0 = alphaP0.mult(y_).sub(yP0.getMAC());

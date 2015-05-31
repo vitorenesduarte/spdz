@@ -19,7 +19,7 @@ public interface FieldElement {
 
     FieldElement mult(FieldElement fe);
 
-    FieldElement pow(Long power);
+    FieldElement pow(Integer power);
 
     int compare(FieldElement fe);
 

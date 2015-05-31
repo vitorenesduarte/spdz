@@ -29,17 +29,19 @@ public class Main {
     public static void main(String[] args) throws ExecutionModeNotSupportedException, InterruptedException, ClassNotSupportedException, InvalidParamException {
         final Long MOD = 41L;
         final int PORT = 3000;
-        final int NINPUTS = 10;
+        final int NINPUTS = 10000;
         final int NPLAYERS = 3;
         final Field field = new Field(MOD);
         final Class<?> clazz = BigIntegerFE.class;
         final FieldElement fixedMACKey = field.random(clazz);
 
+        FieldElement[] alphas = field.createShares(fixedMACKey, NPLAYERS);
+
         // generate a random circuit
         final Circuit circuit = CircuitGenerator.generate(NINPUTS);
 
         //Jung.preview(circuit);
-        //System.out.println(circuit.toString());
+        System.out.println(circuit.toString());
         int numberOfCommunications = NPLAYERS * (NPLAYERS - 1) * circuit.getMultiplicationGatesCount();
         System.out.println("Number of comunications : " + numberOfCommunications);
         System.out.println("Number of players : " + NPLAYERS);
@@ -157,7 +159,7 @@ public class Main {
                     myCommit[i] = new ExtendedRepresentationWithSum(betasAgain[i], sShares[i], s, playerToMAC);
                 } else {
                     ExtendedRepresentation s_i = new ExtendedRepresentation(betasAgain[i], sShares[i], playerToMAC);
-                    theirCommit[i].put("localhost" + (PORT + p), s_i);
+                    theirCommit[i].put("localhost:" + (PORT + p), s_i);
                 }
             }
 
@@ -179,6 +181,7 @@ public class Main {
         for (int i = 0; i < NPLAYERS; i++) {
             players[i].setCircuit(circuit);
             players[i].setMOD(MOD);
+            players[i].setAlpha(alphas[i]);
 
             players[i].setInputs(inputShares[i].get());
             players[i].setBeaverTriples(beaverTriples[i]);

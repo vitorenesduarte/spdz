@@ -30,11 +30,11 @@ public class MultiplicationShare extends Message {
 
     @Override
     public String toString() {
-        return multID + ":{d=" + d + ", e=" + e + '}';
+        return "MultiplicationShare{" + "multID=" + multID + ", d=" + d + ", e=" + e + '}';
     }
-    
+
     @Override
-    public MultiplicationShare clone(){
+    public MultiplicationShare clone() {
         MultiplicationShare clone = new MultiplicationShare(multID, d, e);
         return clone;
     }

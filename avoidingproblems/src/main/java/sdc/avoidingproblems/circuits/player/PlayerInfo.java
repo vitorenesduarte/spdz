@@ -27,6 +27,10 @@ public class PlayerInfo {
     public Integer getPort() {
         return port;
     }
+    
+    public String getHostAndPort(){
+        return host + ":" + port;
+    }
 
     @Override
     public boolean equals(Object o) {

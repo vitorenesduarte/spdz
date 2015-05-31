@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import sdc.avoidingproblems.circuits.exception.ExecutionModeNotSupportedException;
@@ -23,14 +24,17 @@ import sdc.avoidingproblems.circuits.algebra.Function;
 import sdc.avoidingproblems.circuits.algebra.Util;
 import sdc.avoidingproblems.circuits.algebra.mac.BatchCheckValues;
 import sdc.avoidingproblems.circuits.algebra.mac.ExtendedRepresentation;
+import sdc.avoidingproblems.circuits.algebra.mac.ExtendedRepresentationWithSum;
 import sdc.avoidingproblems.circuits.algebra.mac.SimpleRepresentation;
 import sdc.avoidingproblems.circuits.algebra.mac.ToBeMACChecked;
 import sdc.avoidingproblems.circuits.exception.ClassNotSupportedException;
 import sdc.avoidingproblems.circuits.exception.InvalidParamException;
 import sdc.avoidingproblems.circuits.exception.OperationNotSupportedException;
+import sdc.avoidingproblems.circuits.message.Commit;
 import sdc.avoidingproblems.circuits.message.MessageManager;
 import sdc.avoidingproblems.circuits.message.MultiplicationShare;
 import sdc.avoidingproblems.circuits.message.Open;
+import sdc.avoidingproblems.circuits.message.OpenCommited;
 
 /**
  *
@@ -45,6 +49,7 @@ public class Player extends Thread {
     private Circuit circuit;
     private List<SimpleRepresentation> sharedInputs;
     private Long MOD;
+    private FieldElement alpha;
     private List<PlayerInfo> players;
     private Integer NUMBER_OF_OTHER_PLAYERS;
     private BeaverTriples beaverTriples;
@@ -73,6 +78,10 @@ public class Player extends Thread {
 
     public void setMOD(Long MOD) {
         this.MOD = MOD;
+    }
+
+    public void setAlpha(FieldElement alpha) {
+        this.alpha = alpha;
     }
 
     public void setBeaverTriples(BeaverTriples beaverTriples) {
@@ -123,7 +132,7 @@ public class Player extends Thread {
                 }
                 edgesValues.add(result);
             }
-            Boolean checked = doBatchCheck();
+            Boolean checked = countDistributedMultiplications > 0 ? doBatchCheck() : true;
             if (checked) {
                 openFinalResult(edgesValues.get(edgesValues.size() - 1).getValue());
             }
@@ -144,6 +153,9 @@ public class Player extends Thread {
         }
         if (MOD == null) {
             throw new InvalidParamException("MOD Not Found");
+        }
+        if (alpha == null) {
+            throw new InvalidParamException("Alpha Not Found");
         }
         if (beaverTriples == null) {
             throw new InvalidParamException("Beaver Triples Not Found");
@@ -195,15 +207,84 @@ public class Player extends Thread {
         return result;
     }
 
-    private Boolean doBatchCheck() throws InterruptedException {
-        Long u = open(batchCheckValues.getU());
-        
+    private Boolean doBatchCheck() throws InterruptedException, ClassNotSupportedException {
+        FieldElement u = open(batchCheckValues.getU());
+        if (u == null) {
+            return false;
+        }
+        SimpleRepresentation y = toBeMACChecked.get(0).getShare(); // y*u^0 = y
+        FieldElement y_ = toBeMACChecked.get(0).getOpenedValue();
+        for (int power = 1; power < toBeMACChecked.size(); power++) {
+            SimpleRepresentation share = toBeMACChecked.get(power).getShare();
+            FieldElement openedValue = toBeMACChecked.get(power).getOpenedValue();
+
+            FieldElement e = u.pow(power);
+            y = y.add(share.mult(e));
+            y_ = y_.add(openedValue.mult(e));
+        }
+        FieldElement d = alpha.mult(y_).sub(y.getMAC());
+        commit(d);
+        List<Commit> commitList = inbox.waitForCommit();
+
+        openMyCommitedValueAndTheirs();
+        List<OpenCommited> openCommitedList = inbox.waitForOpenCommited();
+
+        // check my commit
+        ExtendedRepresentationWithSum s = batchCheckValues.getMyCommit();
+        List<OpenCommited> myOpenCommited = new ArrayList();
+        for (OpenCommited oc : openCommitedList) {
+            if (oc.getPlayer().equals(playerInfo.getHostAndPort())) {
+                myOpenCommited.add(oc);
+            }
+        }
+        FieldElement openedValue = s.getValue();
+        FieldElement macToBeChecked = s.getMAC(playerInfo.getHostAndPort());
+        for (OpenCommited oc : myOpenCommited) {
+            openedValue = openedValue.add(oc.getValue());
+            macToBeChecked = macToBeChecked.add(oc.getMAC());
+        }
+
+        FieldElement mac = s.getBeta().mult(openedValue);
+
+        if (!mac.longValue().equals(macToBeChecked.longValue())) {
+            out("MAC DOES NOT CHECK!");
+            return false;
+        } else {
+            out("MY COMMIT MAC CHECKED");
+        }
+
+        // check their commit
+        Map<String, ExtendedRepresentation> theirCommit = batchCheckValues.getTheirCommit();
+        for (String player : theirCommit.keySet()) {
+            List<OpenCommited> thisPlayerOpenCommited = new ArrayList();
+            for (OpenCommited oc : openCommitedList) { // optimize this
+                if (oc.getPlayer().equals(player)) {
+                    thisPlayerOpenCommited.add(oc);
+                }
+            }
+            ExtendedRepresentation r = theirCommit.get(player);
+            FieldElement thisPlayerOpenedValue = r.getValue();
+            FieldElement thisPlayerMacToBeChecked = r.getMAC(playerInfo.getHostAndPort());
+            for (OpenCommited oc : thisPlayerOpenCommited) {
+                thisPlayerOpenedValue = thisPlayerOpenedValue.add(oc.getValue());
+                thisPlayerMacToBeChecked = thisPlayerMacToBeChecked.add(oc.getMAC());
+            }
+
+            FieldElement thisPlayerMac = r.getBeta().mult(thisPlayerOpenedValue);
+
+            if (!thisPlayerMac.longValue().equals(thisPlayerMacToBeChecked.longValue())) {
+                out("MAC DOES NOT CHECK!");
+                return false;
+            } else {
+                out("THEIR COMMIT MAC CHECKED");
+            }
+        }
         return true;
     }
 
-    private Long open(ExtendedRepresentation value) throws InterruptedException {
+    private FieldElement open(ExtendedRepresentation value) throws InterruptedException {
         for (PlayerInfo player : players) {
-            String key = player.getHost() + ":" + player.getPort();
+            String key = player.getHostAndPort();
             FieldElement mac = value.getMAC(key);
             Open open = new Open(value.getValue().longValue(), mac.longValue());
             String message = MessageManager.createMessage(open);
@@ -212,22 +293,51 @@ public class Player extends Thread {
 
         List<Open> openList = inbox.waitForOpen();
         FieldElement openedValue = value.getValue();
-        FieldElement macToBeChecked = value.getMAC(playerInfo.getHost() + ":" + playerInfo.getPort());
+        FieldElement macToBeChecked = value.getMAC(playerInfo.getHostAndPort());
         for (Open open : openList) {
             openedValue = openedValue.add(open.getValue());
             macToBeChecked = macToBeChecked.add(open.getMAC());
         }
 
         FieldElement mac = value.getBeta().mult(openedValue);
-        Long result = null;
-        if (mac.longValue().equals(macToBeChecked.longValue())) {
-            result = openedValue.longValue();
-        } else {
+        if (!mac.longValue().equals(macToBeChecked.longValue())) {
             out("MAC DOES NOT CHECK!");
+            return null;
+        } else {
+            out("U MAC CHECKED");
         }
 
-        return result;
+        return openedValue;
+    }
 
+    private void commit(FieldElement value) throws InterruptedException {
+        ExtendedRepresentationWithSum s = batchCheckValues.getMyCommit();
+        FieldElement commit = value.sub(s.getSum());
+        String message = MessageManager.createMessage(new Commit(playerInfo.getHostAndPort(), commit.longValue()));
+        sendToPlayers(message);
+    }
+
+    private void openMyCommitedValueAndTheirs() {
+        ExtendedRepresentationWithSum s = batchCheckValues.getMyCommit();
+        for (PlayerInfo player : players) {
+            String key = player.getHostAndPort();
+            FieldElement mac = s.getMAC(key);
+            OpenCommited openCommited = new OpenCommited(playerInfo.getHostAndPort(), s.getValue().longValue(), mac.longValue());
+            String message = MessageManager.createMessage(openCommited);
+            sendToPlayer(message, player);
+        }
+
+        Map<String, ExtendedRepresentation> theirCommit = batchCheckValues.getTheirCommit();
+        for (String playerHostAndPort : theirCommit.keySet()) {
+            ExtendedRepresentation r = theirCommit.get(playerHostAndPort);
+            for (PlayerInfo player : players) {
+                String key = player.getHostAndPort();
+                FieldElement mac = r.getMAC(key);
+                OpenCommited openCommited = new OpenCommited(playerHostAndPort, r.getValue().longValue(), mac.longValue());
+                String message = MessageManager.createMessage(openCommited);
+                sendToPlayer(message, player);
+            }
+        }
     }
 
     private void openFinalResult(FieldElement result) throws InterruptedException {
