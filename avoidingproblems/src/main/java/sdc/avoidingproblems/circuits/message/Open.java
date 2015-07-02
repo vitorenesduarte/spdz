@@ -1,24 +1,26 @@
 package sdc.avoidingproblems.circuits.message;
 
+import java.math.BigInteger;
+
 /**
  *
  * @author Vitor Enes (vitorenesduarte ~at~ gmail ~dot~ com)
  */
 public class Open extends Message {
 
-    private final Long value;
-    private final Long MAC;
+    private final BigInteger value;
+    private final BigInteger MAC;
 
-    public Open(Long value, Long MAC) {
+    public Open(BigInteger value, BigInteger MAC) {
         this.value = value;
         this.MAC = MAC;
     }
 
-    public Long getValue() {
+    public BigInteger getValue() {
         return value;
     }
 
-    public Long getMAC() {
+    public BigInteger getMAC() {
         return MAC;
     }
 

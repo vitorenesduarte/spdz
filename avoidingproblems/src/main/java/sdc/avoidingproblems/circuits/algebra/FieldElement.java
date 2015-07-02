@@ -1,5 +1,7 @@
 package sdc.avoidingproblems.circuits.algebra;
 
+import java.math.BigInteger;
+
 /**
  * Here, we're encapsulating how we implement field operations. It doesn't
  * matter if we're using Integer or BigInteger, as long as they implement these
@@ -9,19 +11,17 @@ package sdc.avoidingproblems.circuits.algebra;
  */
 public interface FieldElement {
 
-    Long longValue();
+    BigInteger bigIntegerValue();
 
     FieldElement add(FieldElement fe);
     
-    FieldElement add(Long value);
+    FieldElement add(BigInteger value);
 
     FieldElement sub(FieldElement fe);
 
     FieldElement mult(FieldElement fe);
 
     FieldElement pow(Integer power);
-
-    int compare(FieldElement fe);
 
     @Override
     public String toString();

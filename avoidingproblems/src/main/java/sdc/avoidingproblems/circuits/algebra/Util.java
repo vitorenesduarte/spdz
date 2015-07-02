@@ -2,6 +2,7 @@ package sdc.avoidingproblems.circuits.algebra;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigInteger;
 import sdc.avoidingproblems.circuits.exception.ClassNotSupportedException;
 
 /**
@@ -10,9 +11,9 @@ import sdc.avoidingproblems.circuits.exception.ClassNotSupportedException;
  */
 public class Util {
 
-    public static FieldElement getFieldElementInstance(Class<?> clazz, Long value, Long MOD) throws ClassNotSupportedException {
+    public static FieldElement getFieldElementInstance(Class<?> clazz, BigInteger value, BigInteger MOD) throws ClassNotSupportedException {
         try {
-            Constructor<?> constructor = clazz.getConstructor(Long.class, Long.class);
+            Constructor<?> constructor = clazz.getConstructor(BigInteger.class, BigInteger.class);
             FieldElement result = (FieldElement) constructor.newInstance(value, MOD);
             return result;
         } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {

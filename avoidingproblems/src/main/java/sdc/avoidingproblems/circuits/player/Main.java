@@ -1,5 +1,6 @@
 package sdc.avoidingproblems.circuits.player;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +28,7 @@ import sdc.avoidingproblems.circuits.exception.InvalidParamException;
 public class Main {
 
     public static void main(String[] args) throws ExecutionModeNotSupportedException, InterruptedException, ClassNotSupportedException, InvalidParamException {
-        final Long MOD = 41L;
+        final BigInteger MOD = new BigInteger("21888242871839275222246405745257275088548364400416034343698204186575808495617");
         final int PORT = 3000;
         final int NINPUTS = 10000;
         final int NPLAYERS = 3;

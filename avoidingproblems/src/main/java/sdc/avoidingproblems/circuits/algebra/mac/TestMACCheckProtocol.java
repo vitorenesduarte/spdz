@@ -1,5 +1,6 @@
 package sdc.avoidingproblems.circuits.algebra.mac;
 
+import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,7 +27,7 @@ public class TestMACCheckProtocol {
 
     public static void main(String[] args) {
         try {
-            Long MOD = 41L;
+            BigInteger MOD = new BigInteger("41");
             int NPLAYERS = 2;
             boolean imSupposedToLie = new SecureRandom().nextBoolean();
             if (imSupposedToLie) {
@@ -51,9 +52,9 @@ public class TestMACCheckProtocol {
             SimpleRepresentation zMAC = new SimpleRepresentation(zFE, zFE.mult(fixedMACKey));
 
             System.out.println("MOD : " + MOD);
-            System.out.println("{x : " + xMAC.getValue().longValue() + ", y : " + yMAC.getValue().longValue() + ", z : " + zMAC.getValue().longValue() + "}");
-            System.out.println("{xy : " + (xMAC.getValue().longValue() * yMAC.getValue().longValue()) % MOD + "}");
-            System.out.println("{xyz : " + (xMAC.getValue().longValue() * yMAC.getValue().longValue() * zMAC.getValue().longValue()) % MOD + "}");
+            System.out.println("{x : " + xMAC.getValue().bigIntegerValue() + ", y : " + yMAC.getValue().bigIntegerValue() + ", z : " + zMAC.getValue().bigIntegerValue() + "}");
+            System.out.println("{xy : " + xMAC.getValue().bigIntegerValue().multiply(yMAC.getValue().bigIntegerValue()).mod(MOD) + "}");
+            System.out.println("{xyz : " + xMAC.getValue().bigIntegerValue().multiply(yMAC.getValue().bigIntegerValue()).multiply(zMAC.getValue().bigIntegerValue()).mod(MOD) + "}");
 
             BeaverTriple fstTriple = field.randomMultiplicationTriple(clazz, fixedMACKey);
             BeaverTriple sndTriple = field.randomMultiplicationTriple(clazz, fixedMACKey);
@@ -86,13 +87,8 @@ public class TestMACCheckProtocol {
             SimpleRepresentation eFstP1 = yMACShares[1].sub(fstTripleP1.getB());
 
             // Both
-            FieldElement dFst = Util.getFieldElementInstance(clazz,
-                    dFstP0.getValue().longValue() + dFstP1.getValue().longValue(),
-                    MOD);
-
-            FieldElement eFst = Util.getFieldElementInstance(clazz,
-                    eFstP0.getValue().longValue() + eFstP1.getValue().longValue(),
-                    MOD);
+            FieldElement dFst = dFstP0.add(dFstP1).getValue();
+            FieldElement eFst = eFstP0.add(eFstP1).getValue();
 
             Function f = GateSemantic.getFunction(MULT);
             // Player 0
@@ -101,8 +97,8 @@ public class TestMACCheckProtocol {
             // Player 1
             SimpleRepresentation xyP1 = f.apply(DISTRIBUTED, fstTripleP1, dFst, eFst, dFstP1);
 
-            System.out.println("{xy0 : " + xyP0.getValue().longValue() + ", xy1 : " + xyP1.getValue().longValue() + "}");
-            System.out.println("{xy : " + (xyP0.getValue().longValue() + xyP1.getValue().longValue()) % MOD + "}");
+            System.out.println("{xy0 : " + xyP0.getValue().bigIntegerValue() + ", xy1 : " + xyP1.getValue().bigIntegerValue() + "}");
+            System.out.println("{xy : " + xyP0.getValue().bigIntegerValue().add(xyP1.getValue().bigIntegerValue()).mod(MOD) + "}");
 
             // Player 0
             SimpleRepresentation dSndP0 = imSupposedToLie
@@ -115,13 +111,9 @@ public class TestMACCheckProtocol {
             SimpleRepresentation eSndP1 = zMACShares[1].sub(sndTripleP1.getB());
 
             // Both
-            FieldElement dSnd = Util.getFieldElementInstance(clazz,
-                    dSndP0.getValue().longValue() + dSndP1.getValue().longValue(),
-                    MOD);
+            FieldElement dSnd = dSndP0.add(dSndP1).getValue();
 
-            FieldElement eSnd = Util.getFieldElementInstance(clazz,
-                    eSndP0.getValue().longValue() + eSndP1.getValue().longValue(),
-                    MOD);
+            FieldElement eSnd = eSndP0.add(eSndP1).getValue();
 
             // Player 0
             SimpleRepresentation xyzP0 = f.apply(DISTRIBUTED, sndTripleP0, dSnd, eSnd, dSndP0);
@@ -129,8 +121,8 @@ public class TestMACCheckProtocol {
             // Player 1
             SimpleRepresentation xyzP1 = f.apply(DISTRIBUTED, sndTripleP1, dSnd, eSnd, dSndP1);
 
-            System.out.println("{xyz0 : " + xyzP0.getValue().longValue() + ", xyz1 : " + xyzP1.getValue().longValue() + "}");
-            System.out.println("{xyz : " + (xyzP0.getValue().longValue() + xyzP1.getValue().longValue()) % MOD + "}");
+            System.out.println("{xyz0 : " + xyzP0.getValue().bigIntegerValue() + ", xyz1 : " + xyzP1.getValue().bigIntegerValue() + "}");
+            System.out.println("{xyz : " + xyzP0.getValue().bigIntegerValue().add(xyzP1.getValue().bigIntegerValue()).mod(MOD) + "}");
 
             // let's mac check now
             FieldElement u = field.random(clazz);
@@ -198,7 +190,7 @@ public class TestMACCheckProtocol {
             FieldElement d1 = alphaP1.mult(y_).sub(yP1.getMAC());
 
             // skiping commit(d0) and commit(d1)
-            if (d0.add(d1).longValue() == 0) {
+            if (d0.add(d1).bigIntegerValue() == BigInteger.ZERO) {
                 System.out.println("ACCEPT");
             } else {
                 System.out.println("REFUSE");

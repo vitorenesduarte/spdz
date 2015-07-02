@@ -1,5 +1,7 @@
 package sdc.avoidingproblems.circuits.message;
 
+import java.math.BigInteger;
+
 /**
  *
  * @author Vitor Enes (vitorenesduarte ~at~ gmail ~dot~ com)
@@ -7,9 +9,9 @@ package sdc.avoidingproblems.circuits.message;
 public class Commit extends Message {
 
     private final String player; // host:port
-    private final Long value;
+    private final BigInteger value;
 
-    public Commit(String player, Long value) {
+    public Commit(String player, BigInteger value) {
         this.player = player;
         this.value = value;
     }
@@ -18,7 +20,7 @@ public class Commit extends Message {
         return player;
     }
 
-    public Long getValue() {
+    public BigInteger getValue() {
         return value;
     }
 

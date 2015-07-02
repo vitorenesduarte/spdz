@@ -2,7 +2,6 @@ package sdc.avoidingproblems.circuits;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import static sdc.avoidingproblems.circuits.ExecutionMode.LOCAL;
 import sdc.avoidingproblems.circuits.algebra.FieldElement;
 import sdc.avoidingproblems.circuits.algebra.mac.SimpleRepresentation;

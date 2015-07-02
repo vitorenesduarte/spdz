@@ -2,6 +2,7 @@ package sdc.avoidingproblems.circuits.player;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.math.BigInteger;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +22,6 @@ import sdc.avoidingproblems.circuits.BeaverTriples;
 import sdc.avoidingproblems.circuits.algebra.BeaverTriple;
 import sdc.avoidingproblems.circuits.algebra.FieldElement;
 import sdc.avoidingproblems.circuits.algebra.Function;
-import sdc.avoidingproblems.circuits.algebra.Util;
 import sdc.avoidingproblems.circuits.algebra.mac.BatchCheckValues;
 import sdc.avoidingproblems.circuits.algebra.mac.ExtendedRepresentation;
 import sdc.avoidingproblems.circuits.algebra.mac.ExtendedRepresentationWithSum;
@@ -48,7 +48,7 @@ public class Player extends Thread {
     private final PlayerInfo playerInfo;
     private Circuit circuit;
     private List<SimpleRepresentation> sharedInputs;
-    private Long MOD;
+    private BigInteger MOD;
     private FieldElement alpha;
     private List<PlayerInfo> players;
     private Integer NUMBER_OF_OTHER_PLAYERS;
@@ -76,7 +76,7 @@ public class Player extends Thread {
         this.sharedInputs = sharedInputs;
     }
 
-    public void setMOD(Long MOD) {
+    public void setMOD(BigInteger MOD) {
         this.MOD = MOD;
     }
 
@@ -185,15 +185,15 @@ public class Player extends Thread {
         SimpleRepresentation dShared = x.sub(triple.getA());
         SimpleRepresentation eShared = y.sub(triple.getB());
 
-        String message = MessageManager.createMessage(new MultiplicationShare(countDistributedMultiplications, dShared.getValue().longValue(), eShared.getValue().longValue()));
+        String message = MessageManager.createMessage(new MultiplicationShare(countDistributedMultiplications, dShared.getValue().bigIntegerValue(), eShared.getValue().bigIntegerValue()));
         sendToPlayers(message);
 
         List<MultiplicationShare> messages = inbox.waitForMultiplicationShares(countDistributedMultiplications);
         if (messages.size() != NUMBER_OF_OTHER_PLAYERS) {
             out("SOMETHING IS WRONG : " + messages);
         }
-        FieldElement dOpened = Util.getFieldElementInstance(dShared.getValue().getClass(), dShared.getValue().longValue(), MOD);
-        FieldElement eOpened = Util.getFieldElementInstance(eShared.getValue().getClass(), eShared.getValue().longValue(), MOD);
+        FieldElement dOpened = dShared.getValue();
+        FieldElement eOpened = eShared.getValue();
 
         for (MultiplicationShare multShare : messages) {
             dOpened = dOpened.add(multShare.getD());
@@ -246,7 +246,7 @@ public class Player extends Thread {
 
         FieldElement mac = s.getBeta().mult(openedValue);
 
-        if (!mac.longValue().equals(macToBeChecked.longValue())) {
+        if (mac.bigIntegerValue().compareTo(macToBeChecked.bigIntegerValue()) != 0) {
             out("MAC DOES NOT CHECK!");
             return false;
         } else {
@@ -272,7 +272,7 @@ public class Player extends Thread {
 
             FieldElement thisPlayerMac = r.getBeta().mult(thisPlayerOpenedValue);
 
-            if (!thisPlayerMac.longValue().equals(thisPlayerMacToBeChecked.longValue())) {
+            if (thisPlayerMac.bigIntegerValue().compareTo(thisPlayerMacToBeChecked.bigIntegerValue()) != 0) {
                 out("MAC DOES NOT CHECK!");
                 return false;
             } else {
@@ -286,7 +286,7 @@ public class Player extends Thread {
         for (PlayerInfo player : players) {
             String key = player.getHostAndPort();
             FieldElement mac = value.getMAC(key);
-            Open open = new Open(value.getValue().longValue(), mac.longValue());
+            Open open = new Open(value.getValue().bigIntegerValue(), mac.bigIntegerValue());
             String message = MessageManager.createMessage(open);
             sendToPlayer(message, player);
         }
@@ -300,7 +300,7 @@ public class Player extends Thread {
         }
 
         FieldElement mac = value.getBeta().mult(openedValue);
-        if (!mac.longValue().equals(macToBeChecked.longValue())) {
+        if (mac.bigIntegerValue().compareTo(macToBeChecked.bigIntegerValue()) != 0) {
             out("MAC DOES NOT CHECK!");
             return null;
         } else {
@@ -313,7 +313,7 @@ public class Player extends Thread {
     private void commit(FieldElement value) throws InterruptedException {
         ExtendedRepresentationWithSum s = batchCheckValues.getMyCommit();
         FieldElement commit = value.sub(s.getSum());
-        String message = MessageManager.createMessage(new Commit(playerInfo.getHostAndPort(), commit.longValue()));
+        String message = MessageManager.createMessage(new Commit(playerInfo.getHostAndPort(), commit.bigIntegerValue()));
         sendToPlayers(message);
     }
 
@@ -322,7 +322,7 @@ public class Player extends Thread {
         for (PlayerInfo player : players) {
             String key = player.getHostAndPort();
             FieldElement mac = s.getMAC(key);
-            OpenCommited openCommited = new OpenCommited(playerInfo.getHostAndPort(), s.getValue().longValue(), mac.longValue());
+            OpenCommited openCommited = new OpenCommited(playerInfo.getHostAndPort(), s.getValue().bigIntegerValue(), mac.bigIntegerValue());
             String message = MessageManager.createMessage(openCommited);
             sendToPlayer(message, player);
         }
@@ -333,7 +333,7 @@ public class Player extends Thread {
             for (PlayerInfo player : players) {
                 String key = player.getHostAndPort();
                 FieldElement mac = r.getMAC(key);
-                OpenCommited openCommited = new OpenCommited(playerHostAndPort, r.getValue().longValue(), mac.longValue());
+                OpenCommited openCommited = new OpenCommited(playerHostAndPort, r.getValue().bigIntegerValue(), mac.bigIntegerValue());
                 String message = MessageManager.createMessage(openCommited);
                 sendToPlayer(message, player);
             }
@@ -341,13 +341,13 @@ public class Player extends Thread {
     }
 
     private void openFinalResult(FieldElement result) throws InterruptedException {
-        String message = MessageManager.createMessage(new Open(result.longValue(), 0L));
+        String message = MessageManager.createMessage(new Open(result.bigIntegerValue(), BigInteger.ZERO));
         sendToPlayers(message);
         List<Open> openList = inbox.waitForOpen();
         for (Open open : openList) {
             result = result.add(open.getValue());
         }
-        out(result.longValue().toString());
+        out(result.bigIntegerValue().toString());
     }
 
     private void sendToPlayer(String message, PlayerInfo player) {

@@ -1,5 +1,7 @@
 package sdc.avoidingproblems.circuits.message;
 
+import java.math.BigInteger;
+
 /**
  *
  * @author Vitor Enes (vitorenesduarte ~at~ gmail ~dot~ com)
@@ -7,10 +9,10 @@ package sdc.avoidingproblems.circuits.message;
 public class MultiplicationShare extends Message {
 
     private final Long multID;
-    private final Long d;
-    private final Long e;
+    private final BigInteger d;
+    private final BigInteger e;
 
-    public MultiplicationShare(Long multID, Long d, Long e) {
+    public MultiplicationShare(Long multID, BigInteger d, BigInteger e) {
         this.multID = multID;
         this.d = d;
         this.e = e;
@@ -20,11 +22,11 @@ public class MultiplicationShare extends Message {
         return multID;
     }
 
-    public Long getD() {
+    public BigInteger getD() {
         return d;
     }
 
-    public Long getE() {
+    public BigInteger getE() {
         return e;
     }
 

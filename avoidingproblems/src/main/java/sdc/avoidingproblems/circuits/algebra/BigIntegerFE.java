@@ -11,42 +11,45 @@ public class BigIntegerFE implements FieldElement {
     private final BigInteger elem;
     private final BigInteger MOD;
 
-    public BigIntegerFE(Long value, Long MOD) {
-        this.elem = BigInteger.valueOf(value);
-        this.MOD = BigInteger.valueOf(MOD);
+    public BigIntegerFE(BigInteger value, BigInteger MOD) {
+        this.elem = value;
+        this.MOD = MOD;
     }
 
     @Override
-    public Long longValue() {
-        return elem.longValue();
+    public BigInteger bigIntegerValue() {
+        return elem;
     }
 
     @Override
     public FieldElement add(FieldElement fe) {
-        BigInteger result = this.elem.add(BigInteger.valueOf(fe.longValue()));
+        BigInteger result = this.elem.add(fe.bigIntegerValue());
         result = result.mod(MOD);
-        return new BigIntegerFE(result.longValue(), MOD.longValue());
+        return new BigIntegerFE(result, MOD);
     }
     
     @Override
-    public FieldElement add(Long value){
-        BigInteger result = this.elem.add(BigInteger.valueOf(value));
+    public FieldElement add(BigInteger value){
+        BigInteger result = this.elem.add(value);
         result = result.mod(MOD);
-        return new BigIntegerFE(result.longValue(), MOD.longValue());
+        return new BigIntegerFE(result, MOD);
     }
 
     @Override
     public FieldElement sub(FieldElement fe) {
-        BigInteger result = this.elem.subtract(BigInteger.valueOf(fe.longValue()));
+        BigInteger result = this.elem.subtract(fe.bigIntegerValue());
         result = result.mod(MOD);
-        return new BigIntegerFE(result.longValue(), MOD.longValue());
+        if(result.compareTo(BigInteger.ZERO) < 0){
+            result.add(MOD);
+        }
+        return new BigIntegerFE(result, MOD);
     }
 
     @Override
     public FieldElement mult(FieldElement fe) {
-        BigInteger result = this.elem.multiply(BigInteger.valueOf(fe.longValue()));
+        BigInteger result = this.elem.multiply(fe.bigIntegerValue());
         result = result.mod(MOD);
-        return new BigIntegerFE(result.longValue(), MOD.longValue());
+        return new BigIntegerFE(result, MOD);
     }
 
     @Override
@@ -56,18 +59,12 @@ public class BigIntegerFE implements FieldElement {
             result = result.multiply(elem).mod(MOD);
         }
 
-        return new BigIntegerFE(result.longValue(), MOD.longValue());
-    }
-
-    @Override
-    public int compare(FieldElement fe) {
-        BigInteger argument = BigInteger.valueOf(fe.longValue());
-        return argument.compareTo(elem);
+        return new BigIntegerFE(result, MOD);
     }
 
     @Override
     public String toString() {
-        return "" + longValue();
+        return elem.toString();
     }
 
 }

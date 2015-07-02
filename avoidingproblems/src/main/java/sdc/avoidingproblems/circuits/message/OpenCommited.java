@@ -1,5 +1,7 @@
 package sdc.avoidingproblems.circuits.message;
 
+import java.math.BigInteger;
+
 /**
  *
  * @author Vitor Enes (vitorenesduarte ~at~ gmail ~dot~ com)
@@ -7,10 +9,10 @@ package sdc.avoidingproblems.circuits.message;
 public class OpenCommited extends Message {
 
     private final String player; // host:port
-    private final Long value;
-    private final Long MAC;
+    private final BigInteger value;
+    private final BigInteger MAC;
 
-    public OpenCommited(String player, Long value, Long MAC) {
+    public OpenCommited(String player, BigInteger value, BigInteger MAC) {
         this.player = player;
         this.value = value;
         this.MAC = MAC;
@@ -20,11 +22,11 @@ public class OpenCommited extends Message {
         return player;
     }
 
-    public Long getValue() {
+    public BigInteger getValue() {
         return value;
     }
 
-    public Long getMAC() {
+    public BigInteger getMAC() {
         return MAC;
     }
 
