@@ -30,7 +30,7 @@ public class Main {
     public static void main(String[] args) throws ExecutionModeNotSupportedException, InterruptedException, ClassNotSupportedException, InvalidParamException {
         final BigInteger MOD = new BigInteger("21888242871839275222246405745257275088548364400416034343698204186575808495617");
         final int PORT = 3000;
-        final int NINPUTS = 10000;
+        final int NINPUTS = 200000;
         final int NPLAYERS = 3;
         final Field field = new Field(MOD);
         final Class<?> clazz = BigIntegerFE.class;
@@ -42,7 +42,8 @@ public class Main {
         final Circuit circuit = CircuitGenerator.generate(NINPUTS);
 
         //Jung.preview(circuit);
-        System.out.println(circuit.toString());
+        //System.out.println(circuit.toString());
+        System.out.println("Number of mult gates : " + circuit.getMultiplicationGatesCount());
         int numberOfCommunications = NPLAYERS * (NPLAYERS - 1) * circuit.getMultiplicationGatesCount();
         System.out.println("Number of comunications : " + numberOfCommunications);
         System.out.println("Number of players : " + NPLAYERS);

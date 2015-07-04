@@ -103,9 +103,10 @@ public class Player extends Thread {
             checkParams();
 
             inbox.setNumberOfOtherPlayer(NUMBER_OF_OTHER_PLAYERS);
-            InboxReader reader = new InboxReader(playerInfo.getPort(), inbox);
-            reader.start();
+            Acceptor acceptor = new Acceptor(playerInfo.getPort(), inbox);
+            acceptor.start();
             Thread.sleep(1000);
+            connectWithPlayers();
 
             List<SimpleRepresentation> edgesValues = initEdgesValues();
 
@@ -136,7 +137,7 @@ public class Player extends Thread {
             if (checked) {
                 openFinalResult(edgesValues.get(edgesValues.size() - 1).getValue());
             }
-        } catch (InvalidParamException | InvalidPlayersException | InterruptedException | ClassNotSupportedException | ExecutionModeNotSupportedException | OperationNotSupportedException ex) {
+        } catch (IOException | InvalidParamException | InvalidPlayersException | InterruptedException | ClassNotSupportedException | ExecutionModeNotSupportedException | OperationNotSupportedException ex) {
             logger.log(Level.SEVERE, null, ex);
         }
     }
@@ -173,6 +174,12 @@ public class Player extends Thread {
         }
     }
 
+    private void connectWithPlayers() throws IOException {
+        for (PlayerInfo pID : players) {
+            pID.setSocket(new Socket(pID.getHost(), pID.getPort()));
+        }
+    }
+
     private List<SimpleRepresentation> initEdgesValues() {
         List<SimpleRepresentation> edgesValues = new ArrayList(sharedInputs.size() + circuit.getGateCount());
         for (SimpleRepresentation vam : sharedInputs) {
@@ -189,9 +196,6 @@ public class Player extends Thread {
         sendToPlayers(message);
 
         List<MultiplicationShare> messages = inbox.waitForMultiplicationShares(countDistributedMultiplications);
-        if (messages.size() != NUMBER_OF_OTHER_PLAYERS) {
-            out("SOMETHING IS WRONG : " + messages);
-        }
         FieldElement dOpened = dShared.getValue();
         FieldElement eOpened = eShared.getValue();
 
@@ -351,35 +355,16 @@ public class Player extends Thread {
     }
 
     private void sendToPlayer(String message, PlayerInfo player) {
-        try {
-            try (
-                    Socket socket = new Socket(player.getHost(), player.getPort());
-                    PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
-
-                out.write(message);
-            }
-        } catch (IOException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        }
+        player.sendMessage(message);
     }
 
     private void sendToPlayers(String message) {
-        try {
-            for (PlayerInfo player : players) {
-                try (
-                        Socket socket = new Socket(player.getHost(), player.getPort());
-                        PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
-
-                    out.write(message);
-                }
-            }
-        } catch (IOException ex) {
-            logger.log(Level.SEVERE, null, ex);
+        for (PlayerInfo player : players) {
+            sendToPlayer(message, player);
         }
     }
 
     private void out(String s) {
-        System.out.println(playerInfo.getUID() + " - " + s);
+        logger.log(Level.INFO, "{0} - {1}", new Object[]{playerInfo.getUID(), s});
     }
-
 }

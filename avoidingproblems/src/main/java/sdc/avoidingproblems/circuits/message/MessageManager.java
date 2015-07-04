@@ -1,5 +1,6 @@
 package sdc.avoidingproblems.circuits.message;
 
+import java.util.logging.Logger;
 import sdc.avoidingproblems.circuits.JSONManager;
 
 /**
@@ -19,6 +20,6 @@ public class MessageManager {
     }
 
     public static String createMessage(Message message) {
-        return message.getClass().getName() + SEP + JSONManager.toJSON(message) + "\n";
+        return message.getClass().getName() + SEP + JSONManager.toJSON(message);
     }
 }

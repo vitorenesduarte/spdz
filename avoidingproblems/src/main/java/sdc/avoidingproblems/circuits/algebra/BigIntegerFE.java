@@ -54,11 +54,7 @@ public class BigIntegerFE implements FieldElement {
 
     @Override
     public FieldElement pow(Integer power) {
-        BigInteger result = BigInteger.ONE;
-        for (int i = 0; i < power; i++) {
-            result = result.multiply(elem).mod(MOD);
-        }
-
+        BigInteger result = this.elem.modPow(BigInteger.valueOf(power), MOD);
         return new BigIntegerFE(result, MOD);
     }
 

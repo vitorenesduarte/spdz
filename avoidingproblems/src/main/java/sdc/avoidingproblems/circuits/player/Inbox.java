@@ -1,10 +1,12 @@
 package sdc.avoidingproblems.circuits.player;
 
+import com.sun.istack.internal.logging.Logger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import sdc.avoidingproblems.circuits.message.Commit;
 import sdc.avoidingproblems.circuits.message.Message;
 import sdc.avoidingproblems.circuits.message.MultiplicationShare;
@@ -16,6 +18,10 @@ import sdc.avoidingproblems.circuits.message.OpenCommited;
  * @author Vitor Enes (vitorenesduarte ~at~ gmail ~dot~ com)
  */
 public class Inbox {
+
+    private static final Logger logger = Logger.getLogger(Inbox.class);
+    private static final int TIMEOUT = 20;
+    private static final TimeUnit TIME_UNIT = TimeUnit.SECONDS;
 
     private Integer numberOfOtherPlayers;
     private final Map<Long, List<MultiplicationShare>> multShares;
@@ -45,7 +51,7 @@ public class Inbox {
     }
 
     public void addMessage(Message message) throws InterruptedException {
-        LOCK.acquire();
+        lock();
         if (message instanceof MultiplicationShare) {
             MultiplicationShare mShare = (MultiplicationShare) message;
             Long multID = mShare.getMultID();
@@ -77,46 +83,64 @@ public class Inbox {
         } else {
             System.out.println("MESSAGE NOT SUPPORTED YET");
         }
-        LOCK.release();
+        unlock();
     }
 
     public List<MultiplicationShare> waitForMultiplicationShares(Long multiplicationImWaitingFor) throws InterruptedException {
-        MULT_DONE.acquire();
-        LOCK.acquire();
+        for (int count = 1; !MULT_DONE.tryAcquire(TIMEOUT, TIME_UNIT); count++) {
+            logger.info("waitForMultiplicationShares timeout " + count);
+        }
+        lock();
         List<MultiplicationShare> result = new ArrayList(multShares.get(multiplicationImWaitingFor));
         multShares.remove(multiplicationImWaitingFor);
-        LOCK.release();
+        unlock();
 
         return result;
     }
 
     public List<Open> waitForOpen() throws InterruptedException {
-        OPEN_DONE.acquire();
-        LOCK.acquire();
+        for (int count = 1; !OPEN_DONE.tryAcquire(TIMEOUT, TIME_UNIT); count++) {
+            logger.info("waitForOpen timeout " + count);
+        }
+        lock();
         List<Open> result = new ArrayList(openList);
         openList.clear();
-        LOCK.release();
+        unlock();
 
         return result;
     }
 
     public List<Commit> waitForCommit() throws InterruptedException {
-        COMMIT_DONE.acquire();
-        LOCK.acquire();
+        for (int count = 1; !COMMIT_DONE.tryAcquire(TIMEOUT, TIME_UNIT); count++) {
+            logger.info("waitForCommit timeout " + count);
+        }
+        lock();
         List<Commit> result = new ArrayList(commitList);
         commitList.clear();
-        LOCK.release();
+        unlock();
 
         return result;
     }
 
     public List<OpenCommited> waitForOpenCommited() throws InterruptedException {
-        OPEN_COMMITED_DONE.acquire();
-        LOCK.acquire();
+        for (int count = 1; !OPEN_COMMITED_DONE.tryAcquire(TIMEOUT, TIME_UNIT); count++) {
+            logger.info("waitForOpenCommited timeout " + count);
+        }
+        lock();
         List<OpenCommited> result = new ArrayList(openCommitedList);
         openCommitedList.clear();
-        LOCK.release();
+        unlock();
 
         return result;
+    }
+
+    private void lock() throws InterruptedException {
+        for (int count = 1; !LOCK.tryAcquire(TIMEOUT, TIME_UNIT); count++) {
+            logger.info("lock timeout " + count);
+        }
+    }
+
+    private void unlock() {
+        LOCK.release();
     }
 }
