@@ -58,11 +58,11 @@ public class Main {
         debug("INPUTS: " + inputs.toString());
         debug("FIXED MAC KEY: " + fixedMACKey);
         debug("MOD " + MOD);
-        debug("SINGLE-PARTY:");
+        System.out.println("SINGLE-PARTY:");
         FieldElement singePartyEvalResult = circuit.eval(inputs);
-        debug("RESULT: " + new SimpleRepresentation(singePartyEvalResult, singePartyEvalResult.mult(fixedMACKey)));
+        System.out.println("RESULT: " + new SimpleRepresentation(singePartyEvalResult, singePartyEvalResult.mult(fixedMACKey)));
 
-        debug("MULTI-PARTY:");
+        System.out.println("MULTI-PARTY:");
         // create shares for all the circuit's inputs
         // number of shares == number of players
         SharedInputs[] inputShares = new SharedInputs[NPLAYERS];

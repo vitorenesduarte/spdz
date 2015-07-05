@@ -216,13 +216,14 @@ public class Player extends Thread {
         if (u == null) {
             return false;
         }
-        SimpleRepresentation y = toBeMACChecked.get(0).getShare(); // y*u^0 = y
-        FieldElement y_ = toBeMACChecked.get(0).getOpenedValue();
+        FieldElement e = u.pow(0);
+        SimpleRepresentation y = toBeMACChecked.get(0).getShare().mult(e); // y*u^0 = y
+        FieldElement y_ = toBeMACChecked.get(0).getOpenedValue().mult(e);
         for (int power = 1; power < toBeMACChecked.size(); power++) {
             SimpleRepresentation share = toBeMACChecked.get(power).getShare();
             FieldElement openedValue = toBeMACChecked.get(power).getOpenedValue();
 
-            FieldElement e = u.pow(power);
+            e = e.mult(u);
             y = y.add(share.mult(e));
             y_ = y_.add(openedValue.mult(e));
         }
