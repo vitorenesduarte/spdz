@@ -23,5 +23,4 @@ public class SharedInputs {
     public List<SimpleRepresentation> get() {
         return sharedInputs;
     }
-
 }

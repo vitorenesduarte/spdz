@@ -25,11 +25,6 @@ public class BeaverTriples {
     }
 
     public BeaverTriple consume() {
-        BeaverTriple triple = null;
-        if (multiplicationTriples.size() > 0) {
-            triple = multiplicationTriples.remove(0);
-        }
-
-        return triple;
+        return multiplicationTriples.size() > 0 ? multiplicationTriples.remove(0) : null;
     }
 }

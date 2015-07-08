@@ -61,7 +61,6 @@ public class Field {
     }
 
     public BeaverTriple randomMultiplicationTriple(Class<?> clazz, FieldElement fixedMACKey) throws ClassNotSupportedException {
-
         FieldElement a = random(clazz);
         FieldElement aMAC = a.mult(fixedMACKey);
         FieldElement b = random(clazz);

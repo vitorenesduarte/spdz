@@ -63,5 +63,4 @@ public class PlayerInfo {
     public String toString() {
         return "PlayerInfo{" + "UID=" + UID + ", host=" + host + ", port=" + port + '}';
     }
-
 }

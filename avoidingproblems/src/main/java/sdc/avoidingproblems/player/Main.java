@@ -27,12 +27,12 @@ import sdc.avoidingproblems.exception.InvalidParamException;
  */
 public class Main {
 
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     public static void main(String[] args) throws ExecutionModeNotSupportedException, InterruptedException, ClassNotSupportedException, InvalidParamException {
         final BigInteger MOD = new BigInteger("21888242871839275222246405745257275088548364400416034343698204186575808495617");
         final int PORT = 3000;
-        final int NINPUTS = 200000;
+        final int NINPUTS = args.length > 0 ? Integer.parseInt(args[0]) : 200000;
         final int NPLAYERS = 3;
         final Field field = new Field(MOD);
         final Class<?> clazz = BigIntegerFE.class;
@@ -41,6 +41,7 @@ public class Main {
         FieldElement[] alphas = field.createShares(fixedMACKey, NPLAYERS);
 
         // generate a random circuit
+        debug("Generating circuit...");
         final Circuit circuit = CircuitGenerator.generate(NINPUTS);
 
         //Jung.preview(circuit);
@@ -55,12 +56,9 @@ public class Main {
             inputs.add(field.random(clazz));
         }
 
-        debug("INPUTS: " + inputs.toString());
-        debug("FIXED MAC KEY: " + fixedMACKey);
         debug("MOD " + MOD);
         System.out.println("SINGLE-PARTY:");
-        FieldElement singePartyEvalResult = circuit.eval(inputs);
-        System.out.println("RESULT: " + new SimpleRepresentation(singePartyEvalResult, singePartyEvalResult.mult(fixedMACKey)));
+        System.out.println("RESULT: " + circuit.eval(inputs));
 
         System.out.println("MULTI-PARTY:");
         // create shares for all the circuit's inputs

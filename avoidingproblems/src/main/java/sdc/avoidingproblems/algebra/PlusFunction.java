@@ -21,5 +21,4 @@ public class PlusFunction implements Function {
             return x.add(y);
         }
     }
-
 }

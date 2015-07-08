@@ -28,6 +28,4 @@ public class ToBeMACChecked {
     public String toString() {
         return "ToBeMACChecked{" + "share=" + share + ", openedValue=" + openedValue + '}';
     }
-
-    
 }

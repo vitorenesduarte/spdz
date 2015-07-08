@@ -42,5 +42,4 @@ public class MultFunction implements Function {
                 throw new ExecutionModeNotSupportedException();
         }
     }
-
 }

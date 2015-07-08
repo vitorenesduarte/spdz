@@ -3,6 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>sdc</groupId>
     <artifactId>avoidingproblems</artifactId>
+    <name>avoidingproblems</name>
     <version>1.0</version>
     <packaging>jar</packaging>
     <properties>
@@ -10,7 +11,7 @@
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
     </properties>
-    
+
     <dependencies>
         <dependency>
             <groupId>net.sf.jung</groupId>
@@ -67,6 +68,5 @@
             <version>2.2</version>
             <type>jar</type>
         </dependency>
-    </dependencies>
-    <name>avoidingproblems</name>
+    </dependencies>    
 </project>

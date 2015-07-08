@@ -14,7 +14,7 @@ public interface FieldElement {
     BigInteger bigIntegerValue();
 
     FieldElement add(FieldElement fe);
-    
+
     FieldElement add(BigInteger value);
 
     FieldElement sub(FieldElement fe);
@@ -25,5 +25,5 @@ public interface FieldElement {
 
     @Override
     public String toString();
-    
+
 }

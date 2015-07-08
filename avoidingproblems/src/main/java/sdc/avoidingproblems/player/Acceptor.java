@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 public class Acceptor extends Thread {
 
     private static final Logger logger = Logger.getLogger(Acceptor.class.getName());
-    private static final int TIMEOUT = 1 * 60 * 1000; // 1 minute
+    private static final int TIMEOUT = 5 * 60 * 1000; // 1 minute
 
     private final Integer PORT;
     private final Inbox inbox;

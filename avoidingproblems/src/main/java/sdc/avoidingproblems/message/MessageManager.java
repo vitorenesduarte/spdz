@@ -1,6 +1,5 @@
 package sdc.avoidingproblems.message;
 
-import java.util.logging.Logger;
 import sdc.avoidingproblems.JSONManager;
 
 /**

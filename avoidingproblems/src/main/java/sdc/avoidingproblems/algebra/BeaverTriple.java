@@ -27,5 +27,4 @@ public class BeaverTriple {
     public SimpleRepresentation getC() {
         return c;
     }
-
 }

@@ -62,5 +62,4 @@ public class BigIntegerFE implements FieldElement {
     public String toString() {
         return elem.toString();
     }
-
 }

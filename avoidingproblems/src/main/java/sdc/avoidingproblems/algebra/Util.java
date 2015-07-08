@@ -21,5 +21,4 @@ public class Util {
             // maybe we're swallowing too many exceptions
         }
     }
-
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import sdc.avoidingproblems.message.Commit;
 import sdc.avoidingproblems.message.Message;
@@ -85,14 +86,14 @@ public class Inbox {
                 OPEN_COMMITED_DONE.release();
             }
         } else {
-            System.out.println("MESSAGE NOT SUPPORTED YET");
+            logger.warning("MESSAGE NOT SUPPORTED");
         }
         unlock();
     }
 
     public List<MultiplicationShare> waitForMultiplicationShares(Long multiplicationImWaitingFor) throws InterruptedException {
         for (int count = 1; !MULT_DONE.tryAcquire(TIMEOUT, TIME_UNIT); count++) {
-            logger.info("waitForMultiplicationShares timeout " + count);
+            logger.log(Level.INFO, "waitForMultiplicationShares timeout {0}", count);
         }
         lock();
         List<MultiplicationShare> result = new ArrayList(multShares.get(multiplicationImWaitingFor));
@@ -104,7 +105,7 @@ public class Inbox {
 
     public List<Open> waitForOpen() throws InterruptedException {
         for (int count = 1; !OPEN_DONE.tryAcquire(TIMEOUT, TIME_UNIT); count++) {
-            logger.info("waitForOpen timeout " + count);
+            logger.log(Level.INFO, "waitForOpen timeout {0}", count);
         }
         lock();
         List<Open> result = new ArrayList(openList);
@@ -116,7 +117,7 @@ public class Inbox {
 
     public List<Commit> waitForCommit() throws InterruptedException {
         for (int count = 1; !COMMIT_DONE.tryAcquire(TIMEOUT, TIME_UNIT); count++) {
-            logger.info("waitForCommit timeout " + count);
+            logger.log(Level.INFO, "waitForCommit timeout {0}", count);
         }
         lock();
         List<Commit> result = new ArrayList(commitList);
@@ -128,7 +129,7 @@ public class Inbox {
 
     public List<OpenCommited> waitForOpenCommited() throws InterruptedException {
         for (int count = 1; !OPEN_COMMITED_DONE.tryAcquire(TIMEOUT, TIME_UNIT); count++) {
-            logger.info("waitForOpenCommited timeout " + count);
+            logger.log(Level.INFO, "waitForOpenCommited timeout {0}", count);
         }
         lock();
         List<OpenCommited> result = new ArrayList(openCommitedList);
@@ -140,7 +141,7 @@ public class Inbox {
 
     private void lock() throws InterruptedException {
         for (int count = 1; !LOCK.tryAcquire(TIMEOUT, TIME_UNIT); count++) {
-            logger.info("lock timeout " + count);
+            logger.log(Level.INFO, "lock timeout {0}", count);
         }
     }
 
