@@ -57,8 +57,8 @@ public class Field {
                 logger.log(Level.SEVERE, null, ex);
             }
         }
-        return shares;
-    }
+        return shares; 
+   }
 
     public BeaverTriple randomMultiplicationTriple(Class<?> clazz, FieldElement fixedMACKey) throws ClassNotSupportedException {
         FieldElement a = random(clazz);
