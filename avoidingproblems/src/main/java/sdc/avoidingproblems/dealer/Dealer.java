@@ -1,10 +1,11 @@
 package sdc.avoidingproblems.dealer;
 
-import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonWriter;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -42,6 +43,7 @@ public class Dealer {
     private static Field FIELD;
 
     public static void main(String[] args) {
+        long start = System.currentTimeMillis();
         try {
             File circuitFile = null;
             Boolean generateCircuit = false;
@@ -75,6 +77,8 @@ public class Dealer {
         } catch (IOException ex) {
             ex.printStackTrace(System.err);
         }
+
+        System.out.println("TIME: " + (System.currentTimeMillis() - start));
     }
 
     private static void createPreprocessedData(Circuit circuit, String[] playersHost) throws IOException {
@@ -158,17 +162,11 @@ public class Dealer {
             playersID.add(new PlayerInfo(playersHost[i]));
         }
 
-        List<PrintWriter> writers = new ArrayList<>();
-        for (int i = 0; i < NPLAYERS; i++) {
-            String[] parts = playersHost[i].split(":");
-            Socket socket = new Socket(parts[0], Integer.parseInt(parts[1]));
-            writers.add(new PrintWriter(socket.getOutputStream(), true));
-        }
-
+        // send all data to players
         for (int i = 0; i < NPLAYERS; i++) {
             List<PlayerInfo> playersIDCopy = new ArrayList(playersID);
             playersIDCopy.remove(playersID.get(i));
-            
+
             DealerData data = new DealerData();
             data.setCircuit(circuit);
             data.setAlpha(alphas[i]);
@@ -176,13 +174,24 @@ public class Dealer {
             data.setBeaverTriples(beaverTriplesList[i]);
             data.setBatchCheckValues(batchCheckValues[i]);
             data.setOtherPlayers(playersIDCopy);
-            
-            writers.get(i).println(JSONManager.toJSON(data));
+
+            String[] parts = playersHost[i].split(":");
+
+            try (Socket socket = new Socket(parts[0], Integer.parseInt(parts[1]));
+                    JsonWriter writer = new JsonWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"))) {
+
+                JSONManager.toJSON(data, DealerData.class, writer);
+            }
         }
-        
-        for(PrintWriter writer : writers){
-            writer.println("GO");
-            writer.close();
+
+        for (int i = 0; i < NPLAYERS; i++) {
+            String[] parts = playersHost[i].split(":");
+
+            try (Socket socket = new Socket(parts[0], Integer.parseInt(parts[1]));
+                    PrintWriter writer = new PrintWriter(socket.getOutputStream(), true)) {
+
+                writer.println("GO");
+            }
         }
     }
 

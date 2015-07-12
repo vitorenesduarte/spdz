@@ -79,7 +79,6 @@ public class Player extends Thread {
 
             setParams(dealerData);
             checkParams();
-            Thread.sleep(1000);
             connectWithPlayers();
 
             long start = System.currentTimeMillis();

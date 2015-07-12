@@ -1,19 +1,16 @@
 package sdc.avoidingproblems.player;
 
-import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Type;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.LineIterator;
 import sdc.avoidingproblems.JSONManager;
-import sdc.avoidingproblems.algebra.mac.SimpleRepresentation;
 import sdc.avoidingproblems.message.DealerData;
 
 /**
@@ -42,6 +39,7 @@ public class Acceptor extends Thread {
         try {
             ServerSocket ss = new ServerSocket(PORT);
             receiveDealerMessage(ss.accept());
+            receiveDealerGO(ss.accept());
             dealerIsDone.release();
 
             inbox.setNumberOfOtherPlayers(dealerData.getOtherPlayers().size());
@@ -58,16 +56,25 @@ public class Acceptor extends Thread {
     }
 
     private void receiveDealerMessage(Socket socket) throws IOException {
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
-            final LineIterator iterator = new LineIterator(in);
+        try (InputStreamReader in = new InputStreamReader(socket.getInputStream(), "UTF-8");
+                JsonReader reader = new JsonReader(in)) {
 
-            DealerData data = JSONManager.fromJSON(iterator.next(), DealerData.class);
+            DealerData data = JSONManager.fromJSON(reader, DealerData.class);
             dealerData.setAll(data);
 
-            String status = iterator.next();
+        } finally {
+            socket.close();
+        }
+    }
+
+    private void receiveDealerGO(Socket socket) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+            String status = reader.readLine();
             if (!status.equals("GO")) {
                 logger.severe("there is something wrong");
             }
+        } finally {
+            socket.close();
         }
     }
 }
