@@ -1,10 +1,20 @@
 package sdc.avoidingproblems.player;
 
+import com.google.gson.reflect.TypeToken;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.List;
+import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.io.LineIterator;
+import sdc.avoidingproblems.JSONManager;
+import sdc.avoidingproblems.algebra.mac.SimpleRepresentation;
+import sdc.avoidingproblems.message.DealerData;
 
 /**
  *
@@ -13,28 +23,51 @@ import java.util.logging.Logger;
 public class Acceptor extends Thread {
 
     private static final Logger logger = Logger.getLogger(Acceptor.class.getName());
-    private static final int TIMEOUT = 5 * 60 * 1000; // 1 minute
+    //private static final int TIMEOUT = 5 * 60 * 1000; // 1 minute
 
     private final Integer PORT;
     private final Inbox inbox;
+    private final Semaphore dealerIsDone;
+    private final DealerData dealerData;
 
-    public Acceptor(Integer port, Inbox inbox) {
+    public Acceptor(Integer port, Inbox inbox, Semaphore dealerIsDone, DealerData dealerData) {
         this.PORT = port;
         this.inbox = inbox;
+        this.dealerIsDone = dealerIsDone;
+        this.dealerData = dealerData;
     }
 
     @Override
     public void run() {
         try {
             ServerSocket ss = new ServerSocket(PORT);
+            receiveDealerMessage(ss.accept());
+            dealerIsDone.release();
+
+            inbox.setNumberOfOtherPlayers(dealerData.getOtherPlayers().size());
+
             for (int i = 0; i < inbox.getNumberOfOtherPlayers(); i++) {
                 Socket socket = ss.accept();
-                socket.setSoTimeout(TIMEOUT);
+                //socket.setSoTimeout(TIMEOUT);
                 new InboxReader(socket, inbox).start();
             }
-        logger.info("all players accepted");
+            logger.info("all players accepted");
         } catch (IOException ex) {
             logger.log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void receiveDealerMessage(Socket socket) throws IOException {
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+            final LineIterator iterator = new LineIterator(in);
+
+            DealerData data = JSONManager.fromJSON(iterator.next(), DealerData.class);
+            dealerData.setAll(data);
+
+            String status = iterator.next();
+            if (!status.equals("GO")) {
+                logger.severe("there is something wrong");
+            }
         }
     }
 }

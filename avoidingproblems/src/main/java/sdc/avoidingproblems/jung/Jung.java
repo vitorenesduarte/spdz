@@ -44,7 +44,7 @@ public class Jung {
 
     public static void preview(Circuit circuit) {
         positions = new HashMap();
-        int numberOfInputs = circuit.getInputSize();
+        int numberOfInputs = circuit.getNumberOfInputs();
 
         Graph<String, String> graph = new DirectedSparseGraph<>();
 

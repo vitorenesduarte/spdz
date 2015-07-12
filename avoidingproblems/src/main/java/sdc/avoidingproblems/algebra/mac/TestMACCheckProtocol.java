@@ -8,12 +8,9 @@ import static sdc.avoidingproblems.circuit.ExecutionMode.DISTRIBUTED;
 import sdc.avoidingproblems.circuit.GateSemantic;
 import static sdc.avoidingproblems.circuit.GateSemantic.MULT;
 import sdc.avoidingproblems.algebra.BeaverTriple;
-import sdc.avoidingproblems.algebra.BigIntegerFE;
 import sdc.avoidingproblems.algebra.Field;
 import sdc.avoidingproblems.algebra.FieldElement;
 import sdc.avoidingproblems.algebra.Function;
-import sdc.avoidingproblems.algebra.Util;
-import sdc.avoidingproblems.exception.ClassNotSupportedException;
 import sdc.avoidingproblems.exception.ExecutionModeNotSupportedException;
 import sdc.avoidingproblems.exception.InvalidParamException;
 
@@ -35,17 +32,16 @@ public class TestMACCheckProtocol {
             }
 
             Field field = new Field(MOD);
-            Class<?> clazz = BigIntegerFE.class;
-            FieldElement fixedMACKey = field.random(clazz);
+            FieldElement fixedMACKey = field.random();
 
             FieldElement[] alphas = field.createShares(fixedMACKey, NPLAYERS);
             FieldElement alphaP0 = alphas[0];
             FieldElement alphaP1 = alphas[1];
 
             // circuit --> (x . y) . z
-            FieldElement xFE = field.random(clazz);
-            FieldElement yFE = field.random(clazz);
-            FieldElement zFE = field.random(clazz);
+            FieldElement xFE = field.random();
+            FieldElement yFE = field.random();
+            FieldElement zFE = field.random();
 
             SimpleRepresentation xMAC = new SimpleRepresentation(xFE, xFE.mult(fixedMACKey));
             SimpleRepresentation yMAC = new SimpleRepresentation(yFE, yFE.mult(fixedMACKey));
@@ -56,8 +52,8 @@ public class TestMACCheckProtocol {
             System.out.println("{xy : " + xMAC.getValue().bigIntegerValue().multiply(yMAC.getValue().bigIntegerValue()).mod(MOD) + "}");
             System.out.println("{xyz : " + xMAC.getValue().bigIntegerValue().multiply(yMAC.getValue().bigIntegerValue()).multiply(zMAC.getValue().bigIntegerValue()).mod(MOD) + "}");
 
-            BeaverTriple fstTriple = field.randomMultiplicationTriple(clazz, fixedMACKey);
-            BeaverTriple sndTriple = field.randomMultiplicationTriple(clazz, fixedMACKey);
+            BeaverTriple fstTriple = field.randomMultiplicationTriple(fixedMACKey);
+            BeaverTriple sndTriple = field.randomMultiplicationTriple(fixedMACKey);
 
             // create shares
             SimpleRepresentation[] xMACShares = field.createShares(xMAC, NPLAYERS);
@@ -102,7 +98,7 @@ public class TestMACCheckProtocol {
 
             // Player 0
             SimpleRepresentation dSndP0 = imSupposedToLie
-                    ? new SimpleRepresentation(field.random(clazz), xyP0.sub(sndTripleP0.getA()).getMAC())
+                    ? new SimpleRepresentation(field.random(), xyP0.sub(sndTripleP0.getA()).getMAC())
                     : xyP0.sub(sndTripleP0.getA());
             SimpleRepresentation eSndP0 = zMACShares[0].sub(sndTripleP0.getB());
 
@@ -125,7 +121,7 @@ public class TestMACCheckProtocol {
             System.out.println("{xyz : " + xyzP0.getValue().bigIntegerValue().add(xyzP1.getValue().bigIntegerValue()).mod(MOD) + "}");
 
             // let's mac check now
-            FieldElement u = field.random(clazz);
+            FieldElement u = field.random();
             /*
             
              // we won't need this because we're skiping:
@@ -196,7 +192,7 @@ public class TestMACCheckProtocol {
                 System.out.println("REFUSE");
             }
 
-        } catch (ClassNotSupportedException | InvalidParamException | ExecutionModeNotSupportedException ex) {
+        } catch (InvalidParamException | ExecutionModeNotSupportedException ex) {
             logger.log(Level.SEVERE, null, ex);
         }
     }

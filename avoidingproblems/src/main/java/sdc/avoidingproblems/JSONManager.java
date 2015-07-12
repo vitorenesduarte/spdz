@@ -1,6 +1,7 @@
 package sdc.avoidingproblems;
 
 import com.google.gson.Gson;
+import java.lang.reflect.Type;
 
 /**
  *
@@ -14,7 +15,15 @@ public class JSONManager {
         return gson.toJson(o);
     }
 
+    public static String toJSON(Object o, Type type) {
+        return gson.toJson(o, type);
+    }
+
     public static <T extends Object> T fromJSON(String json, Class<T> clazz) {
         return gson.fromJson(json, clazz);
+    }
+
+    public static <T extends Object> T fromJSON(String json, Type type) {
+        return gson.fromJson(json, type);
     }
 }

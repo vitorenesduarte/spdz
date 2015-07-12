@@ -8,8 +8,8 @@ import java.util.List;
  */
 public class Gate {
 
-    private final GateSemantic semantic;
-    private final List<Integer> inputEdges;
+    private GateSemantic semantic;
+    private List<Integer> inputEdges;
 
     public Gate(GateSemantic semantic, List<Integer> inputEdges) {
         this.semantic = semantic;
@@ -19,11 +19,19 @@ public class Gate {
     public GateSemantic getSemantic() {
         return semantic;
     }
+    
+    public void setSemantic(GateSemantic semantic){
+        this.semantic = semantic;
+    }
 
     public List<Integer> getInputEdges() {
         return inputEdges;
     }
 
+    public void setInputEdges(List<Integer> inputEdges){
+        this.inputEdges = inputEdges;
+    }
+    
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

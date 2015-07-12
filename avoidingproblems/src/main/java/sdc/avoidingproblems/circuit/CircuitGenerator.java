@@ -11,13 +11,13 @@ import java.util.List;
  */
 public class CircuitGenerator {
 
-    public static Circuit generate(Integer NINPUTS) {
+    public static Circuit generate(Integer numberOfInputs) {
         SecureRandom random = new SecureRandom();
         List<Gate> gates = new ArrayList();
         List<Integer> notOccupied = new ArrayList();
 
-        Integer edgeCount = NINPUTS;
-        for (int i = 0; i < NINPUTS; i++) {
+        Integer edgeCount = numberOfInputs;
+        for (int i = 0; i < numberOfInputs; i++) {
             notOccupied.add(i);
         }
 
@@ -40,7 +40,7 @@ public class CircuitGenerator {
             gates.add(gate);
         }
 
-        Circuit circuit = new Circuit(NINPUTS, gates);
+        Circuit circuit = new Circuit(numberOfInputs, gates);
         return circuit;
     }
 }

@@ -5,8 +5,10 @@ import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import sdc.avoidingproblems.exception.ExecutionModeNotSupportedException;
@@ -31,6 +33,7 @@ import sdc.avoidingproblems.exception.ClassNotSupportedException;
 import sdc.avoidingproblems.exception.InvalidParamException;
 import sdc.avoidingproblems.exception.OperationNotSupportedException;
 import sdc.avoidingproblems.message.Commit;
+import sdc.avoidingproblems.message.DealerData;
 import sdc.avoidingproblems.message.MessageManager;
 import sdc.avoidingproblems.message.MultiplicationShare;
 import sdc.avoidingproblems.message.Open;
@@ -46,67 +49,40 @@ public class Player extends Thread {
     private Long countDistributedMultiplications = 0L;
 
     private final PlayerInfo playerInfo;
+    private final BigInteger MOD = new BigInteger("21888242871839275222246405745257275088548364400416034343698204186575808495617");
     private Circuit circuit;
-    private List<SimpleRepresentation> sharedInputs;
-    private BigInteger MOD;
+    private List<SimpleRepresentation> inputs;
     private FieldElement alpha;
-    private List<PlayerInfo> players;
-    private Integer NUMBER_OF_OTHER_PLAYERS;
     private BeaverTriples beaverTriples;
+    private List<PlayerInfo> players;
     private BatchCheckValues batchCheckValues;
 
     private final Inbox inbox;
     private final List<ToBeMACChecked> toBeMACChecked;
+    private final Map<String, PrintWriter> writers;
 
-    public Player(int UID, String host, int port) {
-        this.playerInfo = new PlayerInfo(UID, host, port);
+    public Player(String host, int port) {
+        playerInfo = new PlayerInfo(host, port);
         inbox = new Inbox();
-        toBeMACChecked = new ArrayList();
-    }
-
-    public PlayerInfo getInfo() {
-        return playerInfo;
-    }
-
-    public void setCircuit(Circuit circuit) {
-        this.circuit = circuit;
-    }
-
-    public void setInputs(List<SimpleRepresentation> sharedInputs) {
-        this.sharedInputs = sharedInputs;
-    }
-
-    public void setMOD(BigInteger MOD) {
-        this.MOD = MOD;
-    }
-
-    public void setAlpha(FieldElement alpha) {
-        this.alpha = alpha;
-    }
-
-    public void setBeaverTriples(BeaverTriples beaverTriples) {
-        this.beaverTriples = beaverTriples;
-    }
-
-    public void setPlayers(List<PlayerInfo> otherPlayers) {
-        this.players = otherPlayers;
-        this.NUMBER_OF_OTHER_PLAYERS = otherPlayers.size();
-    }
-
-    public void setBatchCheckValues(BatchCheckValues batchCheckValues) {
-        this.batchCheckValues = batchCheckValues;
+        toBeMACChecked = new ArrayList<>();
+        players = new ArrayList<>();
+        writers = new HashMap<>();
     }
 
     @Override
     public void run() {
         try {
-            checkParams();
+            DealerData dealerData = new DealerData();
+            Semaphore dealerIsDone = new Semaphore(0);
+            new Acceptor(playerInfo.getPort(), inbox, dealerIsDone, dealerData).start();
+            dealerIsDone.acquire();
 
-            inbox.setNumberOfOtherPlayers(NUMBER_OF_OTHER_PLAYERS);
-            Acceptor acceptor = new Acceptor(playerInfo.getPort(), inbox);
-            acceptor.start();
+            setParams(dealerData);
+            checkParams();
             Thread.sleep(1000);
             connectWithPlayers();
+
+            long start = System.currentTimeMillis();
 
             List<SimpleRepresentation> edgesValues = initEdgesValues();
 
@@ -136,20 +112,30 @@ public class Player extends Thread {
             Boolean checked = countDistributedMultiplications > 0 ? doBatchCheck() : true;
             if (checked) {
                 openFinalResult(edgesValues.get(edgesValues.size() - 1).getValue());
+                out("TIME: " + (System.currentTimeMillis() - start));
             }
         } catch (IOException | InvalidParamException | InvalidPlayersException | InterruptedException | ClassNotSupportedException | ExecutionModeNotSupportedException | OperationNotSupportedException ex) {
             logger.log(Level.SEVERE, null, ex);
         }
     }
 
+    private void setParams(DealerData dealerData) {
+        this.circuit = dealerData.getCircuit();
+        this.inputs = dealerData.getInputs();
+        this.alpha = dealerData.getAlpha();
+        this.beaverTriples = dealerData.getBeaverTriples();
+        this.players = dealerData.getOtherPlayers();
+        this.batchCheckValues = dealerData.getBatchCheckValues();
+    }
+
     private void checkParams() throws InvalidParamException, InvalidPlayersException {
         if (circuit == null) {
             throw new InvalidParamException("Circuit Not Found");
         }
-        if (sharedInputs == null) {
+        if (inputs == null) {
             throw new InvalidParamException("Inputs Not Found");
         }
-        if (circuit.getInputSize() != sharedInputs.size()) {
+        if (circuit.getNumberOfInputs() != inputs.size()) {
             throw new InvalidParamException("Circuit's number of inputs is different from inputs lenght");
         }
         if (MOD == null) {
@@ -176,13 +162,13 @@ public class Player extends Thread {
 
     private void connectWithPlayers() throws IOException {
         for (PlayerInfo pID : players) {
-            pID.setSocket(new Socket(pID.getHost(), pID.getPort()));
+            writers.put(pID.getHostAndPort(), new PrintWriter(new Socket(pID.getHost(), pID.getPort()).getOutputStream(), true));
         }
     }
 
     private List<SimpleRepresentation> initEdgesValues() {
-        List<SimpleRepresentation> edgesValues = new ArrayList(sharedInputs.size() + circuit.getGateCount());
-        for (SimpleRepresentation vam : sharedInputs) {
+        List<SimpleRepresentation> edgesValues = new ArrayList(inputs.size() + circuit.getGateCount());
+        for (SimpleRepresentation vam : inputs) {
             edgesValues.add(vam);
         }
         return edgesValues;
@@ -356,7 +342,7 @@ public class Player extends Thread {
     }
 
     private void sendToPlayer(String message, PlayerInfo player) {
-        player.sendMessage(message);
+        writers.get(player.getHostAndPort()).println(message);
     }
 
     private void sendToPlayers(String message) {
@@ -366,6 +352,6 @@ public class Player extends Thread {
     }
 
     private void out(String s) {
-        logger.log(Level.INFO, "{0} - {1}", new Object[]{playerInfo.getUID(), s});
+        logger.info(s);
     }
 }

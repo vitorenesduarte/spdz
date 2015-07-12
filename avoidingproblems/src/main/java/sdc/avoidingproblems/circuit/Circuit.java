@@ -2,6 +2,7 @@ package sdc.avoidingproblems.circuit;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import static sdc.avoidingproblems.circuit.ExecutionMode.LOCAL;
 import sdc.avoidingproblems.algebra.FieldElement;
 import sdc.avoidingproblems.algebra.mac.SimpleRepresentation;
@@ -15,20 +16,29 @@ import sdc.avoidingproblems.exception.InvalidParamException;
  */
 public class Circuit {
 
-    private final Integer inputSize;
+    private final Integer numberOfInputs;
     private final List<Gate> gates;
 
-    public Circuit(Integer inputSize, List<Gate> gates) {
-        this.gates = gates;
-        this.inputSize = inputSize;
+    public Circuit(Integer numberOfInputs) {
+        this.numberOfInputs = numberOfInputs;
+        this.gates = new ArrayList();
     }
 
-    public Integer getInputSize() {
-        return inputSize;
+    public Circuit(Integer numberOfInputs, List<Gate> gates) {
+        this.gates = gates;
+        this.numberOfInputs = numberOfInputs;
+    }
+
+    public Integer getNumberOfInputs() {
+        return numberOfInputs;
     }
 
     public List<Gate> getGates() {
         return gates;
+    }
+
+    public void addGate(Gate gate) {
+        this.gates.add(gate);
     }
 
     public int getGateCount() {
@@ -46,35 +56,35 @@ public class Circuit {
         return count;
     }
 
-    public FieldElement eval(List<FieldElement> inputs) throws InvalidParamException, ExecutionModeNotSupportedException {
-        List<SimpleRepresentation> values = new ArrayList();
-        for (FieldElement fe : inputs) {
-            values.add(new SimpleRepresentation(fe, fe)); // fake fake fake
-        }
+    public FieldElement eval(List<SimpleRepresentation> inputs) throws InvalidParamException, ExecutionModeNotSupportedException{
         for (Gate gate : gates) {
             List<Integer> inputEdges = gate.getInputEdges();
             SimpleRepresentation[] params = new SimpleRepresentation[inputEdges.size()];
             for (int j = 0; j < inputEdges.size(); j++) {
-                params[j] = values.get(inputEdges.get(j));
+                params[j] = inputs.get(inputEdges.get(j));
             }
 
-            values.add(GateSemantic.getFunction(gate.getSemantic()).apply(LOCAL, null, null, null, params));
+            inputs.add(GateSemantic.getFunction(gate.getSemantic()).apply(LOCAL, null, null, null, params));
         }
 
-        return values.get(values.size() - 1).getValue();
+        return inputs.get(inputs.size() - 1).getValue();
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        int multiplicationCount = 0;
-        int gateCount = gates.size();
-        for (Gate gate: gates) {
-            if (gate.getSemantic().equals(GateSemantic.MULT)) {
-                sb.append("[").append(multiplicationCount++).append("]");
+        sb.append(numberOfInputs).append("\n");
+        for (Gate gate : gates) {
+            switch (gate.getSemantic()) {
+                case PLUS:
+                    sb.append("+ ").append(StringUtils.join(gate.getInputEdges(), " ")).append("\n");
+                    break;
+                case MULT:
+                    sb.append("x ").append(StringUtils.join(gate.getInputEdges(), " ")).append("\n");
+                    break;
             }
-            sb.append("\t").append(++gateCount).append(" : ").append(gate.toString()).append("\n");
         }
+
         return sb.toString();
     }
 }

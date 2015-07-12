@@ -1,8 +1,6 @@
 package sdc.avoidingproblems.player;
 
-import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.Socket;
 
 /**
  *
@@ -10,19 +8,21 @@ import java.net.Socket;
  */
 public class PlayerInfo {
 
-    private final Integer UID;
     private final String host;
     private final Integer port;
-    private PrintWriter writer;
+    private final String hostAndPort;
 
-    public PlayerInfo(Integer UID, String host, Integer port) {
-        this.UID = UID;
+    public PlayerInfo(String host, int port) {
         this.host = host;
         this.port = port;
+        this.hostAndPort = host + ":" + port;
     }
 
-    public Integer getUID() {
-        return UID;
+    public PlayerInfo(String hostAndPort) {
+        String[] parts = hostAndPort.split(":");
+        this.host = parts[0];
+        this.port = Integer.parseInt(parts[1]);
+        this.hostAndPort = hostAndPort;
     }
 
     public String getHost() {
@@ -34,17 +34,9 @@ public class PlayerInfo {
     }
 
     public String getHostAndPort() {
-        return host + ":" + port;
+        return hostAndPort;
     }
 
-    public void setSocket(Socket socket) throws IOException {
-        this.writer = new PrintWriter(socket.getOutputStream(), true);
-    }
-
-    public void sendMessage(String message){
-        this.writer.println(message);
-    }
-    
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -56,11 +48,11 @@ public class PlayerInfo {
 
         PlayerInfo playerID = (PlayerInfo) o;
 
-        return UID.equals(playerID.getUID());
+        return hostAndPort.equals(playerID.getHostAndPort());
     }
 
     @Override
     public String toString() {
-        return "PlayerInfo{" + "UID=" + UID + ", host=" + host + ", port=" + port + '}';
+        return "PlayerInfo{host=" + host + ", port=" + port + '}';
     }
 }

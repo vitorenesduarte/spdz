@@ -3,9 +3,7 @@ package sdc.avoidingproblems.algebra;
 import java.math.BigInteger;
 import sdc.avoidingproblems.algebra.mac.SimpleRepresentation;
 import java.security.SecureRandom;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import sdc.avoidingproblems.exception.ClassNotSupportedException;
 
 /**
  *
@@ -24,12 +22,12 @@ public class Field {
         this.random = new SecureRandom();
     }
 
-    public FieldElement random(Class<?> clazz) throws ClassNotSupportedException {
+    public FieldElement random() {
         BigInteger value = BigInteger.ZERO;
         while (value.compareTo(BigInteger.ZERO) <= 0 || value.compareTo(MOD) >= 0) { // does this compromises anything?
             value = new BigInteger(MOD.bitCount(), random);
         }
-        FieldElement result = Util.getFieldElementInstance(clazz, value, MOD);
+        FieldElement result = new FieldElement(value, MOD);
         return result;
     }
 
@@ -49,21 +47,16 @@ public class Field {
         FieldElement[] shares = new FieldElement[NSHARES];
         shares[NSHARES - 1] = x;
         for (int i = 0; i < NSHARES - 1; i++) {
-            try {
-                
-                shares[i] = random(x.getClass());
-                shares[NSHARES - 1] = shares[NSHARES - 1].sub(shares[i]);
-            } catch (ClassNotSupportedException ex) {
-                logger.log(Level.SEVERE, null, ex);
-            }
+            shares[i] = random();
+            shares[NSHARES - 1] = shares[NSHARES - 1].sub(shares[i]);
         }
-        return shares; 
-   }
+        return shares;
+    }
 
-    public BeaverTriple randomMultiplicationTriple(Class<?> clazz, FieldElement fixedMACKey) throws ClassNotSupportedException {
-        FieldElement a = random(clazz);
+    public BeaverTriple randomMultiplicationTriple(FieldElement fixedMACKey) {
+        FieldElement a = random();
         FieldElement aMAC = a.mult(fixedMACKey);
-        FieldElement b = random(clazz);
+        FieldElement b = random();
         FieldElement bMAC = b.mult(fixedMACKey);
         FieldElement c = a.mult(b);
         FieldElement cMAC = c.mult(fixedMACKey);

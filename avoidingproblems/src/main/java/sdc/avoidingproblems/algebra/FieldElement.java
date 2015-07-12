@@ -3,27 +3,58 @@ package sdc.avoidingproblems.algebra;
 import java.math.BigInteger;
 
 /**
- * Here, we're encapsulating how we implement field operations. It doesn't
- * matter if we're using Integer or BigInteger, as long as they implement these
- * methods.
  *
  * @author Vitor Enes (vitorenesduarte ~at~ gmail ~dot~ com)
  */
-public interface FieldElement {
+public class FieldElement {
 
-    BigInteger bigIntegerValue();
+    private final BigInteger elem;
+    private final BigInteger MOD;
 
-    FieldElement add(FieldElement fe);
+    public FieldElement(BigInteger value, BigInteger MOD) {
+        this.elem = value;
+        this.MOD = MOD;
+    }
 
-    FieldElement add(BigInteger value);
+    public BigInteger bigIntegerValue() {
+        return elem;
+    }
 
-    FieldElement sub(FieldElement fe);
+    public FieldElement add(FieldElement fe) {
+        BigInteger result = this.elem.add(fe.bigIntegerValue());
+        result = result.mod(MOD);
+        return new FieldElement(result, MOD);
+    }
+    
+    public FieldElement add(BigInteger value){
+        BigInteger result = this.elem.add(value);
+        result = result.mod(MOD);
+        return new FieldElement(result, MOD);
+    }
 
-    FieldElement mult(FieldElement fe);
+    public FieldElement sub(FieldElement fe) {
+        BigInteger result = this.elem.subtract(fe.bigIntegerValue());
+        result = result.mod(MOD);
+        if(result.compareTo(BigInteger.ZERO) < 0){
+            result.add(MOD);
+        }
+        return new FieldElement(result, MOD);
+    }
 
-    FieldElement pow(Integer power);
+    public FieldElement mult(FieldElement fe) {
+        BigInteger result = this.elem.multiply(fe.bigIntegerValue());
+        result = result.mod(MOD);
+        return new FieldElement(result, MOD);
+    }
+
+    public FieldElement pow(Integer power) {
+        BigInteger result = this.elem.modPow(BigInteger.valueOf(power), MOD);
+        return new FieldElement(result, MOD);
+    }
 
     @Override
-    public String toString();
+    public String toString() {
+        return elem.toString();
+    }
 
 }
