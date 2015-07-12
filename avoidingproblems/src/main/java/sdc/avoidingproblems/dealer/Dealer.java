@@ -46,15 +46,12 @@ public class Dealer {
         long start = System.currentTimeMillis();
         try {
             File circuitFile = null;
-            Boolean generateCircuit = false;
             Integer numberOfCircuitInputs = null;
             String[] players = null;
 
             for (String arg : args) {
                 if (arg.startsWith("--circuit=")) {
                     circuitFile = ArgumentUtil.getValueAsFile(arg);
-                } else if (arg.startsWith("--generate-circuit=")) {
-                    generateCircuit = ArgumentUtil.getValueAsBoolean(arg);
                 } else if (arg.startsWith("--circuit-inputs-number=")) {
                     numberOfCircuitInputs = ArgumentUtil.getValueAsInteger(arg);
                 } else if (arg.startsWith("--players=")) {
@@ -62,16 +59,15 @@ public class Dealer {
                 }
             }
 
-            if ((circuitFile == null && !generateCircuit) || (numberOfCircuitInputs == null && generateCircuit) || players == null) {
+            if ((circuitFile == null && numberOfCircuitInputs == null) || players == null) {
                 System.err.println("Arguments missing:");
                 System.err.println("--circuit=<path to circuit file>");
-                System.err.println("--generate-circuit=<booelan>");
-                System.err.println("--circuit-inputs-number=<number of inputs>");
+                System.err.println("--circuit-inputs-number=<number of inputs of the circuit to be generated>");
                 System.err.println("--players=<comma separated list of players host:port>");
                 return;
             }
 
-            Circuit circuit = generateCircuit ? CircuitGenerator.generate(numberOfCircuitInputs) : CircuitParser.parseFromFile(circuitFile);
+            Circuit circuit = circuitFile == null ? CircuitGenerator.generate(numberOfCircuitInputs) : CircuitParser.parseFromFile(circuitFile);
             createPreprocessedData(circuit, players);
 
         } catch (IOException ex) {
