@@ -1,0 +1,2 @@
+#!/bin/bash
+java -cp avoidingproblems/target/avoidingproblems-1.0-jar-with-dependencies.jar sdc.avoidingproblems.dealer.Dealer ${*:1} 

@@ -20,11 +20,14 @@ public class PlayerMain {
             if (port == null) {
                 System.err.println("Arguments missing:");
                 System.err.println("--port=<port where this player will be listening>");
+                return;
             }
 
-            Player player = new Player("localhost", port);
-            player.start();
-            player.join();
+            while (true) {
+                Player player = new Player("localhost", port);
+                player.start();
+                player.join();
+            }
         } catch (InterruptedException ex) {
             ex.printStackTrace(System.err);
         }

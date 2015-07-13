@@ -3,7 +3,6 @@ package sdc.avoidingproblems.dealer;
 import com.google.gson.stream.JsonWriter;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.math.BigInteger;
@@ -12,6 +11,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import sdc.avoidingproblems.ArgumentUtil;
 import sdc.avoidingproblems.JSONManager;
 import sdc.avoidingproblems.algebra.BeaverTriple;
@@ -73,7 +74,7 @@ public class Dealer {
         } catch (IOException ex) {
             ex.printStackTrace(System.err);
         }
-
+        
         System.out.println("TIME: " + (System.currentTimeMillis() - start));
     }
 
@@ -158,6 +159,8 @@ public class Dealer {
             playersID.add(new PlayerInfo(playersHost[i]));
         }
 
+        List<Socket> sockets = new ArrayList<>();
+
         // send all data to players
         for (int i = 0; i < NPLAYERS; i++) {
             List<PlayerInfo> playersIDCopy = new ArrayList(playersID);
@@ -172,22 +175,17 @@ public class Dealer {
             data.setOtherPlayers(playersIDCopy);
 
             String[] parts = playersHost[i].split(":");
-
-            try (Socket socket = new Socket(parts[0], Integer.parseInt(parts[1]));
-                    JsonWriter writer = new JsonWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"))) {
-
-                JSONManager.toJSON(data, DealerData.class, writer);
-            }
+            Socket socket = new Socket(parts[0], Integer.parseInt(parts[1]));
+            sockets.add(socket);
+            JsonWriter writer = new JsonWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
+            JSONManager.toJSON(data, DealerData.class, writer);
+            writer.flush();
         }
 
-        for (int i = 0; i < NPLAYERS; i++) {
-            String[] parts = playersHost[i].split(":");
-
-            try (Socket socket = new Socket(parts[0], Integer.parseInt(parts[1]));
-                    PrintWriter writer = new PrintWriter(socket.getOutputStream(), true)) {
-
-                writer.println("GO");
-            }
+        for (Socket socket : sockets) {
+            PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
+            writer.println("GO");
+            socket.close();
         }
     }
 

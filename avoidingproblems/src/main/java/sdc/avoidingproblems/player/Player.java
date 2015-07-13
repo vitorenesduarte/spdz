@@ -74,7 +74,10 @@ public class Player extends Thread {
         try {
             DealerData dealerData = new DealerData();
             Semaphore dealerIsDone = new Semaphore(0);
-            new Acceptor(playerInfo.getPort(), inbox, dealerIsDone, dealerData).start();
+            Semaphore PLAYER_END = new Semaphore(0);
+            Semaphore ACCEPTOR_END = new Semaphore(0);
+            new Acceptor(playerInfo.getPort(), inbox, dealerIsDone, dealerData, PLAYER_END, ACCEPTOR_END).start();
+            logger.info("waiting for dealer...");
             dealerIsDone.acquire();
 
             setParams(dealerData);
@@ -113,6 +116,9 @@ public class Player extends Thread {
                 openFinalResult(edgesValues.get(edgesValues.size() - 1).getValue());
                 out("TIME: " + (System.currentTimeMillis() - start));
             }
+
+            PLAYER_END.release();
+            ACCEPTOR_END.acquire();
         } catch (IOException | InvalidParamException | InvalidPlayersException | InterruptedException | ClassNotSupportedException | ExecutionModeNotSupportedException | OperationNotSupportedException ex) {
             logger.log(Level.SEVERE, null, ex);
         }

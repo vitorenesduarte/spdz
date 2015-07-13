@@ -1,3 +1,0 @@
-#!/bin/bash
-# arg: player.Main e.g.
-mvn exec:java -Dexec.mainClass="sdc.avoidingproblems.$1" -Dexec.args="${*:2}"

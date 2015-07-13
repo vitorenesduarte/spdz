@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.LineIterator;
@@ -36,6 +37,9 @@ public class InboxReader extends Thread {
             }
         } catch (IOException | ClassNotFoundException | InterruptedException ex) {
             logger.log(Level.SEVERE, null, ex);
+        } catch (IllegalStateException ex) {
+            // swalling socket close exception because we're doing this on purpose
+            // TODO find better way to terminate the inbox readers
         }
     }
 }

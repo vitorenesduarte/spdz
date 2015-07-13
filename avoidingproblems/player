@@ -1,2 +1,0 @@
-#!/bin/bash
-java -cp target/avoidingproblems-1.0-jar-with-dependencies.jar sdc.avoidingproblems.player.PlayerMain ${*:1} 
