@@ -1,2 +1,2 @@
 #!/bin/bash
-java -cp avoidingproblems/target/avoidingproblems-1.0-jar-with-dependencies.jar sdc.avoidingproblems.player.PlayerMain ${*:1} 
+java -cp spdz/target/spdz-1.0-jar-with-dependencies.jar sdc.spdz.player.PlayerMain ${*:1} 
